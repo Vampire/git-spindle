@@ -94,7 +94,7 @@ for spindle in lab hub bb; do
 
     case $spindle in
         lab)
-            test_expect_failure $spindle "List issues without filters does not list closed issues ($spindle)" "
+            test_expect_success $spindle "List issues without filters does not list closed issues ($spindle)" "
                 (cd whelk &&
                 echo -n 'Determining issue id to test ... ' &&
                 git_${spindle}_1 issues whelk state=all > issues &&
@@ -111,7 +111,7 @@ for spindle in lab hub bb; do
                 echo 'OK')
             "
 
-            test_expect_failure $spindle "List issues without state filter does not list closed issues ($spindle)" "
+            test_expect_success $spindle "List issues without state filter does not list closed issues ($spindle)" "
                 (cd whelk &&
                 echo -n 'Determining issue id to test ... ' &&
                 git_${spindle}_1 issues whelk state=all > issues &&
