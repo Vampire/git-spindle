@@ -92,6 +92,185 @@ for spindle in lab hub bb; do
         echo 'OK')
     "
 
+    case $spindle in
+        lab)
+            test_expect_failure $spindle "List issues without filters does not list closed issues ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nClosing issue ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.Issue(iid=\$issue)[0]; issue.state_event = 'close'; issue.save(); repo.Issue(iid=\$issue)[0].state == 'closed' or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n 'OK\nReopening issue ... ' &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.Issue(iid=\$issue)[0]; issue.state_event = 'reopen'; issue.save(); repo.Issue(iid=\$issue)[0].state == 'reopened' or exit(1)\") &&
+                echo 'OK')
+            "
+
+            test_expect_failure $spindle "List issues without state filter does not list closed issues ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nClosing issue ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.Issue(iid=\$issue)[0]; issue.state_event = 'close'; issue.save(); repo.Issue(iid=\$issue)[0].state == 'closed' or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues whelk sort=asc > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n 'OK\nReopening issue ... ' &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.Issue(iid=\$issue)[0]; issue.state_event = 'reopen'; issue.save(); repo.Issue(iid=\$issue)[0].state == 'reopened' or exit(1)\") &&
+                echo 'OK')
+            "
+
+            test_expect_success $spindle "List issues with state filter adheres to set value ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nClosing issue ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.Issue(iid=\$issue)[0]; issue.state_event = 'close'; issue.save(); repo.Issue(iid=\$issue)[0].state == 'closed' or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                grep -q 'Test issue (outside) $id' issues &&
+                echo -n 'OK\nReopening issue ... ' &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.Issue(iid=\$issue)[0]; issue.state_event = 'reopen'; issue.save(); repo.Issue(iid=\$issue)[0].state == 'reopened' or exit(1)\") &&
+                echo 'OK')
+            "
+            ;;
+        hub)
+            test_expect_success $spindle "List issues without filters does not list closed issues ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nClosing issue ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"repo.issue(\$issue).close(); repo.issue(\$issue).state == 'closed' or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n 'OK\nReopening issue ... ' &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"repo.issue(\$issue).reopen(); repo.issue(\$issue).state == 'open' or exit(1)\") &&
+                echo 'OK')
+            "
+
+            test_expect_success $spindle "List issues without state filter does not list closed issues ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nClosing issue ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"repo.issue(\$issue).close(); repo.issue(\$issue).state == 'closed' or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues whelk sort=updated > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n 'OK\nReopening issue ... ' &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"repo.issue(\$issue).reopen(); repo.issue(\$issue).state == 'open' or exit(1)\") &&
+                echo 'OK')
+            "
+
+            test_expect_success $spindle "List issues with state filter adheres to set value ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nClosing issue ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"repo.issue(\$issue).close(); repo.issue(\$issue).state == 'closed' or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues whelk state=all > issues &&
+                grep -q 'Test issue (outside) $id' issues &&
+                echo -n 'OK\nReopening issue ... ' &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"repo.issue(\$issue).reopen(); repo.issue(\$issue).state == 'open' or exit(1)\") &&
+                echo 'OK')
+            "
+            ;;
+        bb)
+            test_expect_success $spindle "List issues without query does not list closed issues ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk 'state != \"resolved\"' > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nSetting issue state to 'closed' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'closed'}); (repo.issue(\$issue).state == 'closed') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'wontfix' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'wontfix'}); (repo.issue(\$issue).state == 'wontfix') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'duplicate' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'duplicate'}); (repo.issue(\$issue).state == 'duplicate') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'invalid' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'invalid'}); (repo.issue(\$issue).state == 'invalid') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'resolved' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'resolved'}); (repo.issue(\$issue).state == 'resolved') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'new' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'new'}); (repo.issue(\$issue).state == 'new') or exit(1)\") &&
+                echo 'OK')
+            "
+
+            test_expect_success $spindle "List issues without state query does not list closed issues ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk 'state != \"resolved\"' > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nSetting issue state to 'closed' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'closed'}); (repo.issue(\$issue).state == 'closed') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues whelk 'kind = \"bug\" OR kind != \"bug\"' > issues &&
+                ! grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'new' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'new'}); (repo.issue(\$issue).state == 'new') or exit(1)\") &&
+                echo 'OK')
+            "
+
+            test_expect_success $spindle "List issues with state query adheres to query ($spindle)" "
+                (cd whelk &&
+                echo -n 'Determining issue id to test ... ' &&
+                git_${spindle}_1 issues whelk 'state != \"resolved\"' > issues &&
+                issue=\$(grep 'Test issue (outside) $id' issues) &&
+                issue=\${issue%%]*} &&
+                issue=\${issue#*[} &&
+                echo -n \"OK [\$issue]\nSetting issue state to 'closed' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'closed'}); (repo.issue(\$issue).state == 'closed') or exit(1)\") &&
+                echo -n 'OK\nTesting issues list ... ' &&
+                git_${spindle}_1 issues whelk 'state != \"resolved\"' > issues &&
+                grep -q 'Test issue (outside) $id' issues &&
+                echo -n \"OK\nSetting issue state to 'new' ... \" &&
+                (export DEBUG=1; git_${spindle}_1 run-shell -c \"issue = repo.issue(\$issue); issue.put(issue.url[0].replace('/2.0/', '/1.0/'), data={'status': 'new'}); (repo.issue(\$issue).state == 'new') or exit(1)\") &&
+                echo 'OK')
+            "
+            ;;
+    esac
+
     test_expect_failure $spindle "Display single issue" "false"
 done
 
