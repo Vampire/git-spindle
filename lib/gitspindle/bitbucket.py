@@ -72,10 +72,10 @@ class BitBucket(GitSpindle):
         repo = self.repository(opts)
         for arg in opts['<key>']:
             with open(arg) as fd:
-                algo, key, label = fd.read().strip().split(None, 2)
+                algo, key, title = (fd.read().strip().split(None, 2) + [None])[:3]
             key = "%s %s" % (algo, key)
             print("Adding deploy key %s" % arg)
-            repo.add_deploy_key(key, label)
+            repo.add_deploy_key(key, title or key[:25])
 
     @command
     def add_privilege(self, opts):
@@ -99,12 +99,12 @@ class BitBucket(GitSpindle):
         existing = [x.key for x in self.me.keys()]
         for arg in opts['<key>']:
             with open(arg) as fd:
-                algo, key, title = fd.read().strip().split(None, 2)
+                algo, key, title = (fd.read().strip().split(None, 2) + [None])[:3]
             key = "%s %s" % (algo, key)
             if key in existing:
                 continue
             print("Adding %s" % arg)
-            self.me.create_key(label=title, key=key)
+            self.me.create_key(label=title or key[:25], key=key)
 
     @command
     @wants_parent

@@ -154,12 +154,12 @@ class GitLab(GitSpindle):
         existing = [x.key for x in self.me.Key()]
         for arg in opts['<key>']:
             with open(arg) as fd:
-                algo, key, title = fd.read().strip().split(None, 2)
+                algo, key, title = (fd.read().strip().split(None, 2) + [None])[:3]
             key = "%s %s" % (algo, key)
             if key in existing:
                 continue
             print("Adding %s" % arg)
-            glapi.CurrentUserKey(self.gl, {'title': title, 'key': key}).save()
+            glapi.CurrentUserKey(self.gl, {'title': title or key[:25], 'key': key}).save()
 
     @command
     def add_member(self, opts):

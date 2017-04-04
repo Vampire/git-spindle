@@ -7,8 +7,10 @@ test_description="User information display test"
 test_expect_success "Generating keys" "
     mkdir .ssh &&
     ssh-keygen -trsa -N '' -f .ssh/id_rsa -C git-spindle-1-test-key-1 -q &&
-    ssh-keygen -trsa -N '' -f id_rsa -C git-spindle-1-test-key-2 &&
-    cat id_rsa.pub .ssh/id_rsa.pub | sort > expected
+    ssh-keygen -trsa -N '' -f id_rsa -C '' &&
+    cat id_rsa.pub .ssh/id_rsa.pub | sort > expected &&
+    key=\$(cat id_rsa.pub) &&
+    sed -i \"s|\$key|\$key\$(echo \$key | cut -c -25)|\" expected
 "
 
 for spindle in hub lab bb; do test_expect_success $spindle "Add and retrieve keys ($spindle)" "
