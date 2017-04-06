@@ -8,7 +8,7 @@ import tempfile
 import whelk
 import time
 
-__all__ = ['GitSpindle', 'Credential', 'command', 'wants_parent']
+__all__ = ['GitSpindle', 'Credential', 'command', 'wants_parent', 'hidden_command']
 NO_VALUE_SENTINEL = 'NO_VALUE_SENTINEL'
 
 __builtins__['PY3'] = sys.version_info[0] > 2
