@@ -32,6 +32,9 @@ import pprint
 __builtins__['pprint'] = pprint.pprint
 del pprint
 
+sys.stdout = open(sys.stdout.fileno(), mode='w', encoding=sys.stdout.encoding, errors='backslashreplace')
+sys.stderr = open(sys.stderr.fileno(), mode='w', encoding=sys.stderr.encoding, errors='backslashreplace')
+
 def command(fnc):
     fnc.is_command = True
     if not hasattr(fnc, 'no_login'):

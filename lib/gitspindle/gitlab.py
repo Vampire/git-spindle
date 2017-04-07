@@ -491,8 +491,8 @@ class GitLab(GitSpindle):
             issues = repo.Issue(iid=issue_no)
             if len(issues):
                 issue = issues[0]
-                print(wrap(issue.title.encode(sys.stdout.encoding, errors='backslashreplace').decode(sys.stdout.encoding), attr.bright, attr.underline))
-                print(issue.description.encode(sys.stdout.encoding, errors='backslashreplace').decode(sys.stdout.encoding))
+                print(wrap(issue.title, attr.bright, attr.underline))
+                print(issue.description)
                 print(issue.web_url)
             else:
                 print('No issue with id %s found in repository %s' % (issue_no, repo.path_with_namespace))
@@ -535,11 +535,11 @@ class GitLab(GitSpindle):
             if issues:
                 print(wrap("Issues for %s/%s" % (repo.namespace.path, repo.path), attr.bright))
                 for issue in issues:
-                    print("[%d] %s %s" % (issue.iid, issue.title.encode(sys.stdout.encoding, errors='backslashreplace').decode(sys.stdout.encoding), issue.web_url))
+                    print("[%d] %s %s" % (issue.iid, issue.title, issue.web_url))
             if mergerequests:
                 print(wrap("Merge requests for %s/%s" % (repo.namespace.path, repo.path), attr.bright))
                 for mr in mergerequests:
-                    print("[%d] %s %s" % (mr.iid, mr.title.encode(sys.stdout.encoding, errors='backslashreplace').decode(sys.stdout.encoding), self.merge_url(mr)))
+                    print("[%d] %s %s" % (mr.iid, mr.title, self.merge_url(mr)))
 
     @command
     def log(self, opts):
