@@ -80,12 +80,14 @@ for spindle in hub lab bb; do
         git_${spindle}_1 clone --triangular --reference whelk-ref --branch git-1-and-2-branch whelk &&
         (cd whelk &&
         echo -n 'Testing remote.pushDefault ... ' &&
-        (git config remote.pushDefault && (exit 2) || test \$? -eq 1) &&
+        git config remote.pushDefault >config &&
+        grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.remote ... ' &&
         git config branch.git-1-and-2-branch.remote >config &&
         grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.pushRemote ... ' &&
-        (git config branch.git-1-and-2-branch.pushRemote && (exit 2) || test \$? -eq 1) &&
+        git config branch.git-1-and-2-branch.pushRemote >config &&
+        grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.merge ... ' &&
         git config branch.git-1-and-2-branch.merge >config &&
         grep -q 'refs/heads/git-1-and-2-branch' config &&
@@ -118,12 +120,14 @@ for spindle in hub lab bb; do
         git_${spindle}_1 clone --triangular --upstream-branch master --reference whelk-ref --branch git-1-and-2-branch whelk &&
         (cd whelk &&
         echo -n 'Testing remote.pushDefault ... ' &&
-        (git config remote.pushDefault && (exit 2) || test \$? -eq 1) &&
+        git config remote.pushDefault >config &&
+        grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.remote ... ' &&
         git config branch.git-1-and-2-branch.remote >config &&
         grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.pushRemote ... ' &&
-        (git config branch.git-1-and-2-branch.pushRemote && (exit 2) || test \$? -eq 1) &&
+        git config branch.git-1-and-2-branch.pushRemote >config &&
+        grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.merge ... ' &&
         git config branch.git-1-and-2-branch.merge >config &&
         grep -q 'refs/heads/git-1-and-2-branch' config &&
@@ -156,12 +160,14 @@ for spindle in hub lab bb; do
         git_${spindle}_1 clone --triangular --upstream-branch non-existing-branch --reference whelk-ref --branch git-1-and-2-branch whelk &&
         (cd whelk &&
         echo -n 'Testing remote.pushDefault ... ' &&
-        (git config remote.pushDefault && (exit 2) || test \$? -eq 1) &&
+        git config remote.pushDefault >config &&
+        grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.remote ... ' &&
         git config branch.git-1-and-2-branch.remote >config &&
         grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.pushRemote ... ' &&
-        (git config branch.git-1-and-2-branch.pushRemote && (exit 2) || test \$? -eq 1) &&
+        git config branch.git-1-and-2-branch.pushRemote >config &&
+        grep -q 'origin' config &&
         echo -n 'OK\nTesting branch.git-1-and-2-branch.merge ... ' &&
         git config branch.git-1-and-2-branch.merge >config &&
         grep -q 'refs/heads/git-1-and-2-branch' config &&
