@@ -251,7 +251,7 @@ that is not ascii or utf-8, git lab will misbehave.
 If you specify an issue number, that issue will be turned into a pull request
 and you will not be asked to write a pull request message.
 
-.. describe:: git lab apply-merge <merge-request-number>
+.. describe:: git lab apply-merge [--parent] <merge-request-number>
 
 GitLab makes it easy for you to merge merge requests, but if you want to keep
 your history linear, this one is for you. It applies a merge request using

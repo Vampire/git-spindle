@@ -155,7 +155,7 @@ def ssh_fix(url):
     return ':'.join(url[6:].split('/',1))
 
 class PullRequest(BBobject):
-    uri = 'https://api.bitbucket.org/2.0/repositories/{owner}/{slug}/pullrequests/{id}'
+    uri = 'https://bitbucket.org/api/2.0/repositories/{owner}/{slug}/pullrequests/{id}'
 
     def get_url(self):
         return self.links['html']['href']

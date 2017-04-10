@@ -346,7 +346,7 @@ that is not ascii or utf-8, git hub will misbehave.
 If you specify an issue number, that issue will be turned into a pull request
 and you will not be asked to write a pull request message.
 
-.. describe:: git hub apply-pr <pr-number>
+.. describe:: git hub apply-pr [--parent] <pr-number>
 
 GitHub makes it easy for you to merge pull requests, but if you want to keep
 your history linear, this one is for you. It applies a pull request using

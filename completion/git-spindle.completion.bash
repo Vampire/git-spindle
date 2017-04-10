@@ -315,7 +315,7 @@ _git_spindle_add_remote() {
 }
 
 _git_spindle_apply_merge() {
-    __git_spindle_options && return
+    __git_spindle_options "--parent" && return
     [ ${#previous_args[@]} -eq 1 ] || return
 
     local -a merge_refs=($(__git for-each-ref --format '%(refname:strip=2)' refs/merge-requests/*/head --no-merged))
@@ -323,7 +323,7 @@ _git_spindle_apply_merge() {
 }
 
 _git_spindle_apply_pr() {
-    __git_spindle_options && return
+    __git_spindle_options "--parent" && return
     [ ${#previous_args[@]} -eq 1 ] || return
 
     case "$1,${GIT_SPINDLE_COMPLETE_REMOTE-no}" in

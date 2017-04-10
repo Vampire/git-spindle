@@ -192,7 +192,7 @@ class GitLab(GitSpindle):
 
     @command
     def apply_merge(self, opts):
-        """<merge-request-number>
+        """[--parent] <merge-request-number>
            Applies a merge request as a series of cherry-picks"""
         repo = self.repository(opts)
         mn = int(opts['<merge-request-number>'])
@@ -205,12 +205,13 @@ class GitLab(GitSpindle):
         print("Applying merge request #%d from %s: %s" % (mr.iid, mr.author.name, mr.title))
         # Warnings
         warned = False
-        cbr = self.gitm('rev-parse', '--symbolic-full-name', 'HEAD').stdout.strip().replace('refs/heads/','')
+        cbr = self.git('symbolic-ref', 'HEAD').stdout.strip().replace('refs/heads/', '')
         if cbr != mr.target_branch:
-            print(wrap("Merge request was filed against %s, but you're on the %s branch" % (mr.base.ref, cbr), fgcolor.red))
+            print(wrap("Merge request was filed against '%s', but you are %s" % (mr.base.ref, "on branch '%s'" % cbr if cbr else "in 'detached HEAD' state"), fgcolor.red))
             warned = True
         if mr.state == 'merged':
             print(wrap("Merge request was already merged", fgcolor.red))
+            warned = True
         if mr.state == 'closed':
             print(wrap("Merge request has already been closed", fgcolor.red))
             warned = True
@@ -218,18 +219,21 @@ class GitLab(GitSpindle):
             if not self.question("Continue?", default=False):
                 sys.exit(1)
         # Fetch mr if needed
-        sha = self.git('rev-parse', '--verify', 'refs/merge/%d/head' % mr.iid).stdout.strip()
-        if not sha:
+        merge_ref = 'refs/merge/%s%d/head' % ('upstream/' if opts['--parent'] else '', mr.iid)
+        sha = self.git('rev-parse', '--verify', '--quiet', merge_ref).stdout.strip()
+        if sha != mr.sha:
             print("Fetching merge request")
-            url = glapi.Project(self.gl, mr.source_project_id).http_url_to_repo
-            self.gitm('fetch', url, 'refs/heads/%s:refs/merge/%d/head' % (mr.source_branch, mr.iid), redirect=False)
-        head_sha = self.gitm('rev-parse', 'HEAD').stdout.strip()
-        if self.git('merge-base', 'refs/merge/%d/head' % mr.iid, head_sha).stdout.strip() == head_sha:
-            print("Fast-forward merging %s..refs/merge/%d/head" % (mr.target_branch, mr.iid))
-            self.gitm('merge', '--ff-only', 'refs/merge/%d/head' % mr.iid, redirect=False)
+            self.gitm('fetch', repo.http_url_to_repo, 'refs/merge-requests/%s/head:%s' % (mr.iid, merge_ref), redirect=False)
+        head_sha = self.gitm('rev-parse', '--verify', '--quiet', 'HEAD').stdout.strip()
+        merge_base = self.git('merge-base', mr.sha, head_sha).stdout.strip()
+        if merge_base == mr.sha:
+            print("Merge request was already merged into this history")
+        elif merge_base == head_sha:
+            print("Fast-forward merging %s..%s" % (mr.target_branch, merge_ref))
+            self.gitm('merge', '--ff-only', merge_ref, redirect=False)
         else:
-            print("Cherry-picking %s..refs/merge/%d/head" % (mr.target_branch, mr.iid))
-            self.gitm('cherry-pick', '%s..refs/merge/%d/head' % (mr.target_branch, mr.iid), redirect=False)
+            print("Cherry-picking %s..%s" % (mr.target_branch, merge_ref))
+            self.gitm('cherry-pick', '%s..%s' % (mr.target_branch, merge_ref), redirect=False)
 
     @command
     def browse(self, opts):

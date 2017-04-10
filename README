@@ -56,7 +56,7 @@ Add user's fork as a named remote. The name defaults to the user's loginname:
   git hub add-remote [--ssh|--http|--git] <user> [<name>]
 
 Applies a pull request as a series of cherry-picks:
-  git hub apply-pr <pr-number>
+  git hub apply-pr [--parent] <pr-number>
 
 Open the GitHub page for a repository in a browser:
   git hub browse [--parent] [<repo>] [<section>]
@@ -206,7 +206,7 @@ Add user's fork as a named remote. The name defaults to the user's loginname:
   git lab add-remote [--ssh|--http] <user> [<name>]
 
 Applies a merge request as a series of cherry-picks:
-  git lab apply-merge <merge-request-number>
+  git lab apply-merge [--parent] <merge-request-number>
 
 Open the GitLab page for a repository in a browser:
   git lab browse [--parent] [<repo>] [<section>]
@@ -299,7 +299,7 @@ Add user's fork as a named remote. The name defaults to the user's loginname:
   git bb add-remote [--ssh|--http] <user> [<name>]
 
 Applies a pull request as a series of cherry-picks:
-  git bb apply-pr <pr-number>
+  git bb apply-pr [--parent] <pr-number>
 
 Open the GitHub page for a repository in a browser:
   git bb browse [--parent] [<repo>] [<section>]

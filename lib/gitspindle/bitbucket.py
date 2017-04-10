@@ -118,21 +118,22 @@ class BitBucket(GitSpindle):
                 self.gitm('remote', 'add', '-f', name, url, redirect=False)
 
     @command
-    @wants_parent
     def apply_pr(self, opts):
-        """<pr-number>
+        """[--parent] <pr-number>
            Applies a pull request as a series of cherry-picks"""
         repo = self.repository(opts)
-        pr = repo.pull_request(opts['<pr-number>'])
+        try:
+            pr = repo.pull_request(opts['<pr-number>'])
+        except bbapi.BitBucketError:
+            err("Error while retrieving pull request #%s: %s" % (opts['<pr-number>'], sys.exc_info()[1]))
         if not pr:
             err("Pull request %s does not exist" % opts['<pr-number>'])
-        pprint(pr.data)
-        print("Applying PR#%d from %s: %s" % (pr.id, pr.author['display_name'] or pr.author['username'], pr.title))
+        print("Applying pull request #%d from %s: %s" % (pr.id, pr.author['display_name'] or pr.author['username'], pr.title))
         # Warnings
         warned = False
-        cbr = self.gitm('rev-parse', '--symbolic-full-name', 'HEAD').stdout.strip().replace('refs/heads/','')
+        cbr = self.git('symbolic-ref', 'HEAD').stdout.strip().replace('refs/heads/', '')
         if cbr != pr.destination['branch']['name']:
-            print(wrap("Pull request was filed against %s, but you're on the %s branch" % (pr.destination['branch']['name'], cbr), fgcolor.red))
+            print(wrap("Pull request was filed against '%s', but you are %s" % (pr.destination['branch']['name'], "on branch '%s'" % cbr if cbr else "in 'detached HEAD' state"), fgcolor.red))
             warned = True
         if pr.state == 'MERGED':
             print(wrap("Pull request was already merged by %s" % (pr.closed_by['display_name'] or pr.closed_by['username']), fgcolor.red))
@@ -141,22 +142,36 @@ class BitBucket(GitSpindle):
             print(wrap("Pull request has already been declined: %s" % pr.reason, fgcolor.red))
             warned = True
         if warned:
-            if not self.question("Continue?"):
+            if not self.question("Continue?", default=False):
                 sys.exit(1)
-
         # Fetch PR if needed
-        sha = self.git('rev-parse', '--verify', 'refs/pull/%d/head' % pr.id).stdout.strip()
+        pull_ref = 'refs/pull/%s%d/head' % ('upstream/' if opts['--parent'] else '', pr.id)
+        sha = self.git('rev-parse', '--verify', '--quiet', pull_ref).stdout.strip()
         if not sha.startswith(pr.source['commit']['hash']):
-            print("Fetching pull request")
+            print('Fetching pull request')
             url = self.bb.repository(*pr.source['repository']['full_name'].split('/')).links['clone']['https']
-            self.gitm('fetch', url, 'refs/heads/%s:refs/pull/%d/head' % (pr.source['branch']['name'], pr.id), redirect=False)
-        head_sha = self.gitm('rev-parse', 'HEAD').stdout.strip()
-        if self.git('merge-base', pr.source['commit']['hash'], head_sha).stdout.strip() == head_sha:
-            print("Fast-forward merging %s..refs/pull/%d/head" % (pr.destination['branch']['name'], pr.id))
-            self.gitm('merge', '--ff-only', 'refs/pull/%d/head' % pr.id, redirect=False)
+            source_branch_ref = 'refs/heads/%s' % pr.source['branch']['name']
+            remote_refs = [x.split('\t', 1)[1] for x in self.gitm('ls-remote', '--refs', '-q', '-h', '-t', url).stdout.strip().split('\n')]
+            remote_refs.remove(source_branch_ref)
+            remote_refs = [source_branch_ref] + remote_refs
+            for remote_ref in remote_refs:
+                self.gitm('fetch', url, remote_ref, redirect=False)
+                self.git('update-ref', pull_ref, pr.source['commit']['hash'])
+                sha = self.git('rev-parse', '--verify', '--quiet', pull_ref).stdout.strip()
+                if sha.startswith(pr.source['commit']['hash']):
+                    break
+        if not sha.startswith(pr.source['commit']['hash']):
+            err("Cannot find pull request commit in current heads and tags")
+        head_sha = self.gitm('rev-parse', '--verify', '--quiet', 'HEAD').stdout.strip()
+        merge_base = self.git('merge-base', pr.source['commit']['hash'], head_sha).stdout.strip()
+        if merge_base.startswith(pr.source['commit']['hash']):
+            print("Pull request was already merged into this history")
+        elif merge_base == head_sha:
+            print("Fast-forward merging %s..%s" % (pr.destination['branch']['name'], pull_ref))
+            self.gitm('merge', '--ff-only', pull_ref, redirect=False)
         else:
-            print("Cherry-picking  %s..refs/pull/%d/head" % (pr.destination['branch']['name'], pr.id))
-            self.gitm('cherry-pick', '%s..refs/pull/%d/head' % (pr.destination['branch']['name'], pr.id), redirect=False)
+            print("Cherry-picking %s..%s" % (pr.destination['branch']['name'], pull_ref))
+            self.gitm('cherry-pick', '%s..%s' % (pr.destination['branch']['name'], pull_ref), redirect=False)
 
     @command
     def browse(self, opts):

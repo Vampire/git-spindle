@@ -231,7 +231,7 @@ message contain the shortlog and diffstat of the commits that you're asking to
 be merged. Note that if you use any characterset in your logs and filenames
 that is not ascii or utf-8, git bb will misbehave.
 
-.. describe:: git bb apply-pr <pr-number>
+.. describe:: git bb apply-pr [--parent] <pr-number>
 
 BitBucket makes it easy for you to merge pull requests, but if you want to keep
 your history linear, this one is for you. It applies a pull request using
