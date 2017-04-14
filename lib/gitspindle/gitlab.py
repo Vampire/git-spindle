@@ -772,7 +772,7 @@ class GitLab(GitSpindle):
 
     @command
     def protect(self, opts):
-        """<branch>
+        """<branch> [<repo>]
            Protect a branch against force-pushes"""
         repo = self.repository(opts)
         for branch in repo.Branch():
@@ -782,7 +782,8 @@ class GitLab(GitSpindle):
 
     @command
     def protected(self, opts):
-        """\nList protected branches"""
+        """[<repo>]
+           List protected branches"""
         repo = self.repository(opts)
         for branch in repo.Branch():
             if branch.protected:
@@ -885,7 +886,7 @@ class GitLab(GitSpindle):
 
     @command
     def unprotect(self, opts):
-        """<branch>
+        """<branch> [<repo>]
            Remove force-push protection from a branch"""
         repo = self.repository(opts)
         for branch in repo.Branch():
