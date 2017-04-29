@@ -460,10 +460,10 @@ _git_spindle_config() {
 
 _git_spindle_create() {
     case "$1,$prev" in
-        *,--description|bb,--team|lab,--group)
+        *,--description|lab,--group)
             unset COMPREPLY
             ;;
-        hub,--org)
+        hub,--org|bb,--team)
             unset COMPREPLY
 
             [ ${GIT_SPINDLE_COMPLETE_REMOTE-no} = no ] && return
@@ -475,7 +475,7 @@ _git_spindle_create() {
                     __gitcomp "${line[*]:2}"
                     return
                 fi
-            done < <(__git hub whoami 2>/dev/null)
+            done < <(__git $1 whoami 2>/dev/null)
             ;;
         *)
             __git_spindle_options "--private"
