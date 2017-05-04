@@ -221,14 +221,40 @@ Issues and pull requests
 List all open issues. You can specify a query string to filter issues. When you
 specify :option:`--parent`, list all open issues for the parent repository.
 
-.. describe:: git bb issue [<repo>] [--parent] [<issue>...]
+.. describe:: git bb issue [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [--yes] [<yours:theirs>]
 
 Shows details about the mentioned issue numbers. As with :option:`issues`, you
 can use the :option:`--parent` option to use the parent repository. If you do
 not specify an issue number, you will be prompted for a message that will be
 used to create a new issue.
 
-.. describe:: git bb pull-request [--yes] [<yours:theirs>]
+When you use the :option:`--message` option, you will not be prompted for a
+message, but the given message is used. When you use the :option:`--edit` option
+additionally, the message is opened in the usual editor for further
+modification.
+
+When you use the :option:`--file` option, you will not be prompted for a
+message, but the contents of the given file are used. When you use the
+:option:`--edit` option additionally, the message is opened in the usual editor
+for further modification. When you use :data:`-` as value, then the contents of
+standard input are used.
+
+When you use the :option:`--template` option, the contents of the given file are
+used as a start for the message. The message is opened in the usual editor for
+further modification. When you use the :option:`--edit` option additionally, it
+has no effect. When the template file content without the comment lines is not
+different from the editing result without the comment lines, the operation is
+aborted.
+
+When you use the :option:`--reuse-message` option, you will not be prompted for
+a message, but the commit message of the given commit-ish is used. When you use
+the :option:`--edit` option additionally, the message is opened in the usual
+editor for further modification.
+
+When you use none of the message options, then using the :option:`--edit` option
+additionally, has no effect.
+
+.. describe:: git bb pull-request [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [--yes] [<yours:theirs>]
 
 Files a pull request to merge branch "yours" (default: the current branch) into
 the upstream branch "theirs" (default: the tracked branch of "yours" if it is in
@@ -238,6 +264,34 @@ editor will be opened to write a pull request message. The comments of said
 message contain the shortlog and diffstat of the commits that you're asking to
 be merged. Note that if you use any characterset in your logs and filenames
 that is not ascii or utf-8, git bb will misbehave.
+
+When you use the :option:`--message` option, you will not be prompted for a
+message, but the given message is used. When you use the :option:`--edit` option
+additionally, the message is opened in the usual editor for further
+modification.
+
+When you use the :option:`--file` option, you will not be prompted for a
+message, but the contents of the given file are used. When you use the
+:option:`--edit` option additionally, the message is opened in the usual editor
+for further modification. When you use :data:`-` as value, then the contents of
+standard input are used.
+
+When you use the :option:`--template` option, the contents of the given file are
+used as a start for the message. The message is opened in the usual editor for
+further modification. When you use the :option:`--edit` option additionally, it
+has no effect. When the template file content without the comment lines is not
+different from the editing result without the comment lines, the operation is
+aborted.
+
+When you use the :option:`--reuse-message` option, you will not be prompted for
+a message, but the commit message of the given commit-ish is used. When you use
+the :option:`--edit` option additionally, the message is opened in the usual
+editor for further modification.
+
+When you use none of the message options, the logs of the commits to be merged
+are used to construct a default message. The message is opened in the usual
+editor for further modification. When you use the :option:`--edit` option
+additionally, it has no effect.
 
 .. describe:: git bb apply-pr [--parent] <pr-number>
 

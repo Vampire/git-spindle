@@ -865,7 +865,7 @@ class GitHub(GitSpindle):
 
     @command
     def issue(self, opts):
-        """[<repo>] [--parent] [<issue>...]
+        """[<repo>] [--parent] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [<issue>...]
            Show issue details or report an issue"""
         if opts['<repo>'] and opts['<repo>'].isdigit():
             # Let's assume it's an issue
@@ -881,14 +881,28 @@ class GitHub(GitSpindle):
             else:
                 print('No issue with id %s found in repository %s' % (issue_no, repo.full_name))
         if not opts['<issue>']:
-            body = self.find_template(repo, 'ISSUE_TEMPLATE') or """
+            found, edit, template, message = self.determine_message(opts)
+            if not found:
+                edit = True
+                template = self.find_template(repo, 'ISSUE_TEMPLATE') or """
 # Reporting an issue on %s/%s
-# Please describe the issue as clarly as possible. Lines starting with '#' will
+# Please describe the issue as clearly as possible. Lines starting with '#' will
 # be ignored, the first line will be used as title for the issue.
 #""" % (repo.owner.login, repo.name)
-            title, body = self.edit_msg(body, 'ISSUE_EDITMSG')
+                message = template = template.strip()
+
+            if edit:
+                message = self.edit_msg(message, 'ISSUE_EDITMSG', False)
+
+            title, body = (message + '\n').split('\n', 1)
+            title = title.strip()
+            body = body.strip()
+
             if not body:
-                err("Empty issue message")
+                err("No issue message specified")
+
+            if template and message == template:
+                err("Template file was not changed")
 
             try:
                 issue = repo.create_issue(title=title, body=body)
@@ -1218,7 +1232,7 @@ class GitHub(GitSpindle):
 
     @command
     def pull_request(self, opts):
-        """[--issue=<issue>] [--yes] [<yours:theirs>]
+        """[--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>|--issue=<issue>] [--edit] [--yes] [<yours:theirs>]
            Opens a pull request to merge your branch to an upstream branch"""
         repo = self.repository(opts)
         parent = self.parent_repo(repo) or repo
@@ -1282,7 +1296,7 @@ class GitHub(GitSpindle):
 
         # How many commits?
         accept_empty_body = False
-        commits = try_decode(self.gitm('log', '--pretty=%H', '%s/%s..%s' % (remote, dst, src)).stdout).strip().split()
+        commits = try_decode(self.gitm('log', '--pretty=format:%H', '%s/%s..%s' % (remote, dst, src)).stdout).split()
         commits.reverse()
         if not commits:
             err("Your branch has no commits yet")
@@ -1292,33 +1306,53 @@ class GitHub(GitSpindle):
             print("Pull request %d created %s" % (pull.number, pull.html_url))
             return
 
-        body = self.find_template(parent, 'PULL_REQUEST_TEMPLATE')
-        # 1 commit: title/body from commit
-        if not body and len(commits) == 1:
-            title, body = self.gitm('log', '--pretty=%s\n%b', '%s^..%s' % (commits[0], commits[0])).stdout.split('\n', 1)
-            title = title.strip()
-            body = body.strip()
-            accept_empty_body = not bool(body)
+        found, edit, template, message = self.determine_message(opts)
+        if not found:
+            edit = True
+            template = self.find_template(parent, 'PULL_REQUEST_TEMPLATE')
+            template = template.strip() if template else None
+            body = template
+            # 1 commit: title/body from commit
+            if not body and len(commits) == 1:
+                title, body = self.gitm('log', '-1', '--pretty=format:%s\n%b', commits[0]).stdout.split('\n', 1)
+                title = title.strip()
+                body = body.strip()
+                accept_empty_body = not bool(body)
 
-        # More commits: title from branchname (titlecased, s/-/ /g), body comments from shortlog
-        else:
-            title = src
-            if '/' in title:
-                title = title[title.rfind('/') + 1:]
-            title = title.title().replace('-', ' ')
-            body = body or ""
+            # More commits: title from branchname (titlecased, s/-/ /g), body comments from shortlog
+            else:
+                title = src
+                if '/' in title:
+                    title = title[title.rfind('/') + 1:]
+                title = title.title().replace('-', ' ')
+                body = body or ""
 
-        body += """
+            message = "%s\n\n%s" % (title, body)
+
+        if edit:
+            message += """
 # Requesting a pull from %s/%s into %s/%s
 #
 # Please enter a message to accompany your pull request. Lines starting
 # with '#' will be ignored, and an empty message aborts the request.
 #""" % (repo.owner.login, src, parent.owner.login, dst)
-        body += "\n# " + try_decode(self.gitm('shortlog', '%s/%s..%s' % (remote, dst, src)).stdout).strip().replace('\n', '\n# ')
-        body += "\n#\n# " + try_decode(self.gitm('diff', '--stat', '%s^..%s' % (commits[0], commits[-1])).stdout).strip().replace('\n', '\n#')
-        title, body = self.edit_msg("%s\n\n%s" % (title,body), 'PULL_REQUEST_EDIT_MSG')
+            message += "\n# " + try_decode(self.gitm('shortlog', '%s/%s..%s' % (remote, dst, src)).stdout).strip().replace('\n', '\n# ')
+            message += "\n#\n# " + try_decode(self.gitm('diff', '--stat', '%s^..%s' % (commits[0], commits[-1])).stdout).strip().replace('\n', '\n#')
+            message = self.edit_msg(message, 'PULL_REQUEST_EDIT_MSG', False)
+
+        title, body = (message + '\n').split('\n', 1)
+        title = title.strip()
+        body = body.strip()
+
         if not body and not accept_empty_body:
             err("No pull request message specified")
+
+        if template:
+            if opts['--template']:
+                if message == template:
+                    err("Template file was not changed")
+            elif body == template:
+                err("Template file was not changed")
 
         try:
             pull = parent.create_pull(base=dst, head='%s:%s' % (repo.owner.login, src), title=title, body=body)
@@ -1340,7 +1374,7 @@ class GitHub(GitSpindle):
 
     @command
     def release(self, opts):
-        """[--draft] [--prerelease] <tag> [<releasename>]
+        """[--draft] [--prerelease] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] <tag> [<releasename>]
            Create a release"""
         repo = self.repository(opts)
         tag = opts['<tag>']
@@ -1355,18 +1389,35 @@ class GitHub(GitSpindle):
         if not self.git('ls-remote', repo.remote, ref).stdout.strip():
             if self.question("Tag %s does not exist in your GitHub repo, shall I push?" % tag):
                 self.gitm('push', repo.remote, '%s:%s' % (ref, ref), redirect=False)
-        body = ''
-        if self.git('cat-file', '-t', ref).stdout.strip() == 'tag':
-            body = self.git('--no-pager', 'log', '-1', '--format=%B', ref).stdout
-        body += """
+
+        found, edit, template, body = self.determine_message(opts)
+        if not found:
+            edit = True
+            body = ''
+            if self.git('cat-file', '-t', ref).stdout.strip() == 'tag':
+                body = self.git('log', '-1', '--pretty=format:%B', ref).stdout
+            body += """
 # Creating release %s based on tag %s
 #
 # Please enter a text to accompany your release. Lines starting with '#'
 # will be ignored
 #""" % (name, tag)
-        body = self.edit_msg(body, 'RELEASE_TEXT', split_title=False)
-        release = repo.create_release(tag, target_commitish=sha, name=name, body=body, draft=opts['--draft'], prerelease=opts['--prerelease'])
-        print("Release '%s' created %s" % (release.name, release.html_url))
+
+        if edit:
+            body = self.edit_msg(body, 'RELEASE_TEXT', False)
+
+        if not body:
+            err("No release text specified")
+
+        if template and body == template:
+            err("Template file was not changed")
+
+        try:
+            release = repo.create_release(tag, target_commitish=sha, name=name, body=body, draft=opts['--draft'], prerelease=opts['--prerelease'])
+            print("Release '%s' created %s" % (release.name, release.html_url))
+        except:
+            filename = self.backup_message('', body, 'release-text-')
+            err("Failed to create a release, the release text has been saved in %s" % filename)
 
     @command
     def releases(self, opts):

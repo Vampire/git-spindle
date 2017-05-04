@@ -355,7 +355,7 @@ class BitBucket(GitSpindle):
 
     @command
     def issue(self, opts):
-        """[<repo>] [--parent] [<issue>...]
+        """[<repo>] [--parent] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [<issue>...]
            Show issue details or report an issue"""
         if opts['<repo>'] and opts['<repo>'].isdigit():
             # Let's assume it's an issue
@@ -375,14 +375,27 @@ class BitBucket(GitSpindle):
                 else:
                     raise
         if not opts['<issue>']:
-            body = """
+            found, edit, template, message = self.determine_message(opts)
+            if not found:
+                edit = True
+                message = """
 # Reporting an issue on %s/%s
-# Please describe the issue as clarly as possible. Lines starting with '#' will
+# Please describe the issue as clearly as possible. Lines starting with '#' will
 # be ignored, the first line will be used as title for the issue.
 #""" % (repo.owner['username'], repo.name)
-            title, body = self.edit_msg(body, 'ISSUE_EDITMSG')
+
+            if edit:
+                message = self.edit_msg(message, 'ISSUE_EDITMSG', False)
+
+            title, body = (message + '\n').split('\n', 1)
+            title = title.strip()
+            body = body.strip()
+
             if not body:
-                err("Empty issue message")
+                err("No issue message specified")
+
+            if template and message == template:
+                err("Template file was not changed")
 
             try:
                 issue = repo.create_issue(title=title, body=body)
@@ -528,7 +541,7 @@ class BitBucket(GitSpindle):
 
     @command
     def pull_request(self, opts):
-        """[--yes] [<yours:theirs>]
+        """[--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [--yes] [<yours:theirs>]
            Opens a pull request to merge your branch to an upstream branch"""
         repo = self.repository(opts)
         if repo.is_fork:
@@ -597,37 +610,51 @@ class BitBucket(GitSpindle):
 
         # How many commits?
         accept_empty_body = False
-        commits = try_decode(self.gitm('log', '--pretty=%H', '%s/%s..%s' % (remote, dst, src)).stdout).strip().split()
+        commits = try_decode(self.gitm('log', '--pretty=format:%H', '%s/%s..%s' % (remote, dst, src)).stdout).split()
         commits.reverse()
         if not commits:
             err("Your branch has no commits yet")
 
-        # 1 commit: title/body from commit
-        if len(commits) == 1:
-            title, body = self.gitm('log', '--pretty=%s\n%b', '%s^..%s' % (commits[0], commits[0])).stdout.split('\n', 1)
-            title = title.strip()
-            body = body.strip()
-            accept_empty_body = not bool(body)
+        found, edit, template, message = self.determine_message(opts)
+        if not found:
+            edit = True
+            # 1 commit: title/body from commit
+            if len(commits) == 1:
+                title, body = self.gitm('log', '-1', '--pretty=format:%s\n%b', commits[0]).stdout.split('\n', 1)
+                title = title.strip()
+                body = body.strip()
+                accept_empty_body = not bool(body)
 
-        # More commits: title from branchname (titlecased, s/-/ /g), body comments from shortlog
-        else:
-            title = src
-            if '/' in title:
-                title = title[title.rfind('/') + 1:]
-            title = title.title().replace('-', ' ')
-            body = ""
+            # More commits: title from branchname (titlecased, s/-/ /g), body comments from shortlog
+            else:
+                title = src
+                if '/' in title:
+                    title = title[title.rfind('/') + 1:]
+                title = title.title().replace('-', ' ')
+                body = ""
 
-        body += """
+            message = "%s\n\n%s" % (title, body)
+
+        if edit:
+            message += """
 # Requesting a pull from %s/%s into %s/%s
 #
 # Please enter a message to accompany your pull request. Lines starting
 # with '#' will be ignored, and an empty message aborts the request.
 #""" % (repo.owner['username'], src, parent.owner['username'], dst)
-        body += "\n# " + try_decode(self.gitm('shortlog', '%s/%s..%s' % (remote, dst, src)).stdout).strip().replace('\n', '\n# ')
-        body += "\n#\n# " + try_decode(self.gitm('diff', '--stat', '%s^..%s' % (commits[0], commits[-1])).stdout).strip().replace('\n', '\n#')
-        title, body = self.edit_msg("%s\n\n%s" % (title,body), 'PULL_REQUEST_EDIT_MSG')
+            message += "\n# " + try_decode(self.gitm('shortlog', '%s/%s..%s' % (remote, dst, src)).stdout).strip().replace('\n', '\n# ')
+            message += "\n#\n# " + try_decode(self.gitm('diff', '--stat', '%s^..%s' % (commits[0], commits[-1])).stdout).strip().replace('\n', '\n#')
+            message = self.edit_msg(message, 'PULL_REQUEST_EDIT_MSG', False)
+
+        title, body = (message + '\n').split('\n', 1)
+        title = title.strip()
+        body = body.strip()
+
         if not body and not accept_empty_body:
             err("No pull request message specified")
+
+        if template and message == template:
+            err("Template file was not changed")
 
         try:
             pull = parent.create_pull_request(src=srcb, dst=dstb, title=title, body=body)

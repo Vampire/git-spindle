@@ -193,6 +193,10 @@ __git_spindle() {
         --contexts
         --issue
         --save
+        --message
+        --file
+        --template
+        --reuse-message
         # valued git clone options
         --reference
         --reference-if-able
@@ -590,6 +594,7 @@ _git_spindle_ip_addresses() {
 }
 
 _git_spindle_issue() {
+    __git_spindle_message_options && return
     __git_spindle_options "--parent" && return
 
     [ ${#previous_args[@]} -eq 1 ] && __git_spindle_repos $1
@@ -745,6 +750,7 @@ _git_spindle_members() {
 }
 
 _git_spindle_merge_request() {
+    __git_spindle_message_options && return
     __git_spindle_options "--yes" && return
 
     [ ${#previous_args[@]} -eq 1 ] || return
@@ -845,6 +851,7 @@ _git_spindle_pull_request() {
             return
             ;;
         *)
+            __git_spindle_message_options && return
             [ $1 = hub ] && __git_spindle_options "--issue=" no_space
             __git_spindle_options "--yes" && return
             ;;
@@ -878,6 +885,7 @@ _git_spindle_readme() {
 }
 
 _git_spindle_release() {
+    __git_spindle_message_options && return
     __git_spindle_options "--draft --prerelease" && return
 
     [ ${#previous_args[@]} -eq 1 ] && __gitcomp_nl "$(__git for-each-ref --format='%(refname:strip=2)' refs/tags)"
@@ -1247,6 +1255,26 @@ __git_spindle_collaborators() {
 
     local IFS=$'\n\r'
     __gitcompappend "$(__git hub collaborators $1 2>/dev/null)" "" "$2" " "
+}
+
+__git_spindle_message_options() {
+    case "$prev" in
+        --message)
+            unset COMPREPLY
+            ;;
+        --file|--template)
+            unset COMPREPLY
+            _filedir
+            ;;
+        --reuse-message)
+            __gitcomp_nl "$(__git_refs)"
+            ;;
+        *)
+            __git_spindle_options "--message= --file= --template= --reuse-message=" no_space
+            __git_spindle_options "--edit"
+            return 1
+            ;;
+    esac
 }
 
 __git_spindle_options() {

@@ -119,7 +119,7 @@ Show the IP addresses for github.com services in CIDR format:
   git hub ip-addresses [--git] [--hooks] [--importer] [--pages]
 
 Show issue details or report an issue:
-  git hub issue [<repo>] [--parent] [<issue>...]
+  git hub issue [<repo>] [--parent] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [<issue>...]
 
 List issues in a repository:
   git hub issues [<repo>] [--parent] [<filter>...]
@@ -146,13 +146,13 @@ Lists all keys for a user:
   git hub public-keys [<user>]
 
 Opens a pull request to merge your branch to an upstream branch:
-  git hub pull-request [--issue=<issue>] [--yes] [<yours:theirs>]
+  git hub pull-request [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>|--issue=<issue>] [--edit] [--yes] [<yours:theirs>]
 
 Get the README for a repository:
   git hub readme [<repo>]
 
 Create a release:
-  git hub release [--draft] [--prerelease] <tag> [<releasename>]
+  git hub release [--draft] [--prerelease] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] <tag> [<releasename>]
 
 List all releases:
   git hub releases [<repo>]
@@ -236,7 +236,7 @@ Display the help for a command:
   git lab help <command>
 
 Show issue details or report an issue:
-  git lab issue [<repo>] [--parent] [<issue>...]
+  git lab issue [<repo>] [--parent] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [<issue>...]
 
 List issues in a repository:
   git lab issues [<repo>] [--parent] [<filter>...]
@@ -251,7 +251,7 @@ List repo memberships:
   git lab members [<repo>]
 
 Opens a merge request to merge your branch to an upstream branch:
-  git lab merge-request [--yes] [<yours:theirs>]
+  git lab merge-request [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [--yes] [<yours:theirs>]
 
 Mirror a repository, or all your repositories:
   git lab mirror [--ssh|--http] [--goblet] [<repo>]
@@ -335,7 +335,7 @@ Invite users to collaborate on this repository:
   git bb invite [--read|--write|--admin] <email>...
 
 Show issue details or report an issue:
-  git bb issue [<repo>] [--parent] [<issue>...]
+  git bb issue [<repo>] [--parent] [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [<issue>...]
 
 List issues in a repository:
   git bb issues [<repo>] [--parent] [<query>]
@@ -353,7 +353,7 @@ Lists all keys for a user:
   git bb public-keys [<user>]
 
 Opens a pull request to merge your branch to an upstream branch:
-  git bb pull-request [--yes] [<yours:theirs>]
+  git bb pull-request [--message=<message>|--file=<file>|--template=<file>|--reuse-message=<commit>] [--edit] [--yes] [<yours:theirs>]
 
 Remove deploy key by id:
   git bb remove-deploy-key <key>...

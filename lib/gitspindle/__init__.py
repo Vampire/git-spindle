@@ -235,6 +235,38 @@ Options:
             return default
         return answer.lower() == 'y'
 
+    def determine_message(self, opts):
+        found = True
+        edit = opts['--edit']
+        template = None
+        if opts['--message']:
+            message = opts['--message']
+        elif opts['--file']:
+            try:
+                file = sys.stdin if opts['--file'] == '-' else open(opts['--file'])
+                try:
+                    message = file.read()
+                finally:
+                    file.close()
+            except FileNotFoundError:
+                err('File "%s" was not found' % opts['--file'])
+        elif opts['--template']:
+            edit = True
+            try:
+                file = open(opts['--template'])
+                try:
+                    message = template = file.read().strip()
+                finally:
+                    file.close()
+            except FileNotFoundError:
+                err('File "%s" was not found' % opts['--template'])
+        elif opts['--reuse-message']:
+            message = self.gitm('log', '-1', '--pretty=format:%B', opts['--reuse-message']).stdout
+        else:
+            found = False
+            message = None
+        return found, edit, template, message
+
     def edit_msg(self, msg, filename, split_title=True):
         if self.git('rev-parse'):
             temp_file = os.path.join(self.gitm('rev-parse', '--git-dir').stdout.strip(), filename)
