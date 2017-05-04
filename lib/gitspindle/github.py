@@ -941,12 +941,17 @@ class GitHub(GitSpindle):
                     continue
                 else:
                     raise
-            if not issues:
-                continue
-            print(wrap("Issues for %s/%s" % (repo.owner.login, repo.name), attr.bright))
-            for issue in issues:
-                url = issue.pull_request and issue.pull_request['html_url'] or issue.html_url
-                print("[%d] %s %s" % (issue.number, issue.title, url))
+
+            if any([not issue.pull_request for issue in issues]):
+                print(wrap("Issues for %s/%s" % (repo.owner.login, repo.name), attr.bright))
+                for issue in issues:
+                    if not issue.pull_request:
+                        print("[%d] %s %s" % (issue.number, issue.title, issue.html_url))
+            if any([issue.pull_request for issue in issues]):
+                print(wrap("Pull requests for %s/%s" % (repo.owner.login, repo.name), attr.bright))
+                for issue in issues:
+                    if issue.pull_request:
+                        print("[%d] %s %s" % (issue.number, issue.title, issue.pull_request['html_url']))
 
     @command
     def log(self, opts):
