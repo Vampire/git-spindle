@@ -922,7 +922,11 @@ class GitHub(GitSpindle):
         if not opts['<repo>'] and not self.in_repo:
             repos = list(self.gh.iter_repos(type='all'))
         else:
-            repos = [self.repository(opts)]
+            # the parent is already retrieved in the for loop below
+            # without this, you get the grandparent instead if there is one
+            tmpOpts = dict(opts)
+            tmpOpts['--parent'] = False
+            repos = [self.repository(tmpOpts)]
         for repo in repos:
             repo = (opts['--parent'] and self.parent_repo(repo)) or repo
             if any([not '=' in x for x in opts['<filter>']]):

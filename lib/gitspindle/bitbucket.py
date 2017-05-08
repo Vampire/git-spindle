@@ -415,10 +415,13 @@ class BitBucket(GitSpindle):
         if not opts['<repo>'] and not self.in_repo:
             repos = self.me.repositories()
         else:
-            repos = [self.repository(opts)]
+            # the parent is already retrieved in the for loop below
+            # without this, you get the grandparent instead if there is one
+            tmpOpts = dict(opts)
+            tmpOpts['--parent'] = False
+            repos = [self.repository(tmpOpts)]
         for repo in repos:
-            if repo.fork and opts['--parent']:
-                repo = self.parent_repo(repo) or repo
+            repo = (opts['--parent'] and self.parent_repo(repo)) or repo
             query = opts['<query>']
             if query:
                 if not 'state' in query:
