@@ -219,9 +219,14 @@ Options:
             parent = self.parent_repo(repo_)
             if parent:
                 repo_ = parent
-                repo_.remote = None
             elif opts['--parent']:
                 err("No parent repo found for %s/%s" % (user, repo))
+
+        if opts['--root']:
+            parent = self.parent_repo(repo_)
+            while parent:
+                repo_ = parent
+                parent = self.parent_repo(repo_)
 
         return repo_
 

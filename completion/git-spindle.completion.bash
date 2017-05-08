@@ -545,7 +545,7 @@ _git_spindle_fork() {
 }
 
 _git_spindle_forks() {
-    __git_spindle_options && return
+    __git_spindle_options "--parent --root --recursive" && return
 
     [ ${#previous_args[@]} -eq 1 ] && __git_spindle_repos $1
 }
@@ -1071,7 +1071,7 @@ __git_spindle_forks() {
             ;;
         hub,*|bb,*)
             local IFS=$'\n'
-            local -a forks=($(__git $1 forks 2>/dev/null))
+            local -a forks=($(__git $1 forks --root --recursive 2>/dev/null))
             forks=("${forks[@]#[}")
             __gitcomp_nl_append "${forks[*]%%]*}"
             ;;

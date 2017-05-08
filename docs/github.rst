@@ -211,9 +211,14 @@ repos, SSH is used.
 Calling fork in a previously cloned-but-not-forked repository will create a
 fork of that repository and set up your remotes.
 
-.. describe:: git hub forks [<repo>]
+.. describe:: git hub forks [--parent|--root] [--recursive] [<repo>]
 
 List all forks of this repository, highlighting the original repository.
+The option :option:`--parent` lists the forks of the parent repository and thus the
+siblings of this repository. The option :option:`--root` lists the forks of the
+top-most repository in the network of this repository. The option :option:`--recursive`
+lists the forks recursively down the tree. So to get all repositories in this network
+use the options :option:`--root` and :option:`--recursive` together.
 
 .. describe:: git hub add-remote [--ssh|--http|--git] <user> [<name>]
 

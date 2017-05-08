@@ -783,15 +783,19 @@ class GitHub(GitSpindle):
         else:
             self.set_origin(opts, repo=my_clone)
 
+    def list_forks(self, repo, recursive=True):
+        for fork in repo.iter_forks():
+            print("[%s] %s" % (fork.owner.login, fork.html_url))
+            if recursive and fork.forks_count:
+                self.list_forks(fork)
+
     @command
-    @wants_parent
     def forks(self, opts):
-        """[<repo>]
+        """[--parent|--root] [--recursive] [<repo>]
            List all forks of this repository"""
         repo = self.repository(opts)
         print("[%s] %s" % (wrap(repo.owner.login, attr.bright), repo.html_url))
-        for fork in repo.iter_forks():
-            print("[%s] %s" % (fork.owner.login, fork.html_url))
+        self.list_forks(repo, opts['--recursive'])
 
     @command
     def gist(self, opts):

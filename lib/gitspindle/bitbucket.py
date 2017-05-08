@@ -329,15 +329,19 @@ class BitBucket(GitSpindle):
         else:
             self.set_origin(opts, repo=my_fork)
 
+    def list_forks(self, repo, recursive=True):
+        for fork in repo.forks():
+            print("[%s] %s" % (fork.owner['username'], fork.links['html']['href']))
+            if recursive and fork.forks_count:
+                self.list_forks(fork)
+
     @command
-    @wants_parent
     def forks(self, opts):
-        """[<repo>]
+        """[--parent|--root] [--recursive] [<repo>]
            List all forks of this repository"""
         repo = self.repository(opts)
         print("[%s] %s" % (wrap(repo.owner['username'], attr.bright), repo.links['html']['href']))
-        for fork in repo.forks():
-            print("[%s] %s" % (fork.owner['username'], fork.links['html']['href']))
+        self.list_forks(repo, opts['--recursive'])
 
     @command
     def invite(self, opts):

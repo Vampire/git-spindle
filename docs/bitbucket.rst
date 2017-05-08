@@ -145,9 +145,14 @@ Defaults to cloning from a git url, but this can be overridden.
 Calling fork in a previously cloned-but-not-forked repository will create a
 fork of that repository and set up your remotes.
 
-.. describe:: git bb forks [<repo>]
+.. describe:: git bb forks [--parent|--root] [--recursive] [<repo>]
 
 List all forks of this repository, highlighting the original repository.
+The option :option:`--parent` lists the forks of the parent repository and thus the
+siblings of this repository. The option :option:`--root` lists the forks of the
+top-most repository in the network of this repository. The option :option:`--recursive`
+lists the forks recursively down the tree. So to get all repositories in this network
+use the options :option:`--root` and :option:`--recursive` together.
 
 .. describe:: git bb add-remote [--ssh|--http] <user> [<name>]
 
