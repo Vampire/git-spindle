@@ -230,7 +230,7 @@ class Repository(BBobject):
 
     def forks(self):
         data = self.get(self.links['forks']['href'])['values']
-        return [Repository(self.bb, mode=None, **repo) for repo in data]
+        return [Repository(self.bb, owner=repo['owner']['username'], slug=repo['slug']) for repo in data]
 
     def issues(self, query=None):
         url = 'https://api.bitbucket.org/2.0/repositories/%s/issues' % self.full_name
