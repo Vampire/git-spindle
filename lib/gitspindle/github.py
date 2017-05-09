@@ -271,16 +271,42 @@ class GitHub(GitSpindle):
             print("Cherry-picking %d commit(s): %s..%s" % (pr.commits, pr.base.ref, pull_ref))
             self.gitm('cherry-pick', '%s..%s' % (pr.base.ref, pull_ref), redirect=False)
 
+    def find_fork(self, repo, user, exclude=None):
+        forked = []
+        # scan through the forks of the current repo
+        for fork in repo.iter_forks():
+            if not exclude or fork != exclude:
+                if fork.owner.login == user:
+                    return fork
+                # remember which forks have forks themselves
+                if fork.forks_count:
+                    forked.append(fork)
+        # scan through the forks of the forks,
+        # excluding the current repo to not follow it as parent
+        for fork in forked:
+            result = self.find_fork(fork, user, repo)
+            if result:
+                return result
+        # scan through the parent repository if present,
+        # excluding the current repo to not follow it as fork
+        if repo.fork:
+            parent = self.parent_repo(repo)
+            if not exclude or parent != exclude:
+                if parent.owner.login == user:
+                    return parent
+                return self.find_fork(parent, user, repo)
+
     @command
-    @wants_parent
     def add_remote(self, opts):
         """[--ssh|--http|--git] <user> [<name>]
            Add user's fork as a named remote. The name defaults to the user's loginname"""
-        for fork in self.repository(opts).iter_forks():
-            if fork.owner.login in opts['<user>']:
-                url = self.clone_url(fork, opts)
-                name = opts['<name>'] or fork.owner.login
-                self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        fork = self.find_fork(self.repository(opts), opts['<user>'][0])
+        if fork:
+            url = self.clone_url(fork, opts)
+            name = opts['<name>'] or fork.owner.login
+            self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        else:
+            err('Fork of user "%s" does not exist' % opts['<user>'][0])
 
     @command
     def add_public_keys(self, opts):

@@ -138,16 +138,42 @@ class BitBucket(GitSpindle):
             print("Adding %s" % arg)
             self.me.create_key(label=title or key[:25], key=key)
 
+    def find_fork(self, repo, user, exclude=None):
+        forked = []
+        # scan through the forks of the current repo
+        for fork in repo.forks():
+            if not exclude or fork.full_name != exclude:
+                if fork.owner['username'] == user:
+                    return fork
+                # remember which forks have forks themselves
+                if fork.forks_count:
+                    forked.append(fork)
+        # scan through the forks of the forks,
+        # excluding the current repo to not follow it as parent
+        for fork in forked:
+            result = self.find_fork(fork, user, repo.full_name)
+            if result:
+                return result
+        # scan through the parent repository if present,
+        # excluding the current repo to not follow it as fork
+        if hasattr(repo, 'parent') and repo.parent:
+            parent = self.parent_repo(repo)
+            if not exclude or parent.full_name != exclude:
+                if parent.owner['username'] == user:
+                    return parent
+                return self.find_fork(parent, user, repo.full_name)
+
     @command
-    @wants_parent
     def add_remote(self, opts):
         """[--ssh|--http] <user> [<name>]
            Add user's fork as a named remote. The name defaults to the user's loginname"""
-        for fork in self.repository(opts).forks():
-            if fork.owner['username'] in opts['<user>']:
-                name = opts['<name>'] or fork.owner['username']
-                url = self.clone_url(fork, opts)
-                self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        fork = self.find_fork(self.repository(opts), opts['<user>'][0])
+        if fork:
+            url = self.clone_url(fork, opts)
+            name = opts['<name>'] or fork.owner['username']
+            self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        else:
+            err('Fork of user "%s" does not exist' % opts['<user>'][0])
 
     @command
     def apply_pr(self, opts):

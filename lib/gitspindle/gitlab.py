@@ -218,9 +218,8 @@ class GitLab(GitSpindle):
         if not repo:
             err("Repository %s/%s does not exist" % (user, dwim.path))
         url = self.clone_url(repo, opts)
-        self.gitm('remote', 'add', name, url)
+        self.gitm('remote', 'add', '-f', name, url, redirect=False)
         self.gitm('config', 'remote.%s.gitlab-id' % name, repo.id)
-        self.gitm('fetch', name, redirect=False)
 
     @command
     def apply_merge(self, opts):
