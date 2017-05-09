@@ -274,6 +274,9 @@ List all your repos:
 Set the remote 'origin' to gitlab.:
   git lab set-origin [--ssh|--http] [--triangular [--upstream-branch=<branch>]]
 
+Set up goblet config based on GitLab config:
+  git lab setup-goblet
+
 Remove force-push protection from a branch:
   git lab unprotect <branch> [<repo>]
 
@@ -366,6 +369,9 @@ List all repos of a user, by default yours:
 
 Set the remote 'origin' to github.:
   git bb set-origin [--ssh|--http] [--triangular [--upstream-branch=<branch>]]
+
+Set up goblet config based on Bitbucket config:
+  git bb setup-goblet
 
 Create a new snippet from files or stdin:
   git bb snippet [--description=<description>] <file>...

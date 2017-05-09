@@ -537,17 +537,10 @@ class BitBucket(GitSpindle):
             else:
                 fd.write((repo.description or "").encode('utf-8'))
         if opts['--goblet']:
-            if repo.is_fork:
-                owner = self.parent_repo(repo).owner
-                owner = owner['display_name'] or owner['username']
-            else:
-                owner = repo.owner['display_name'] or repo.owner['username']
-            self.gitm('--git-dir', git_dir, 'config', 'goblet.owner', owner.encode('utf-8'))
-            self.gitm('--git-dir', git_dir, 'config', 'goblet.cloneurlhttp', repo.links['clone']['https'])
-            goblet_dir = os.path.join(git_dir, 'goblet')
-            if not os.path.exists(goblet_dir):
-                os.mkdir(goblet_dir, 0o777)
-                os.chmod(goblet_dir, 0o777)
+            cwd = os.getcwd()
+            os.chdir(git_dir)
+            self.setup_goblet(opts)
+            os.chdir(cwd)
 
     @command
     def privileges(self, opts):
@@ -736,6 +729,21 @@ class BitBucket(GitSpindle):
                     continue
                 color.append(attr.faint)
             print(wrap(fmt % (repo.name, '(%s)' % repo.scm, repo.description), *color))
+
+    @command
+    @wants_root
+    def setup_goblet(self, opts):
+        """\nSet up goblet config based on Bitbucket config"""
+        tmpOpts = dict(opts)
+        tmpOpts['--root'] = False
+        repo = self.repository(tmpOpts)
+        root = self.repository(opts)
+        self.gitm('config', 'goblet.owner', root.owner['display_name'] or root.owner['username'])
+        self.gitm('config', 'goblet.cloneurlhttp', repo.links['clone']['https'])
+        self.gitm('config', 'goblet.cloneurlssh', repo.links['clone']['ssh'])
+        if repo.description:
+            with open(os.path.join(self.gitm('rev-parse', '--git-dir').stdout.strip(), 'description'), 'w') as fd:
+                fd.write(repo.description)
 
     @command
     def set_origin(self, opts, repo=None, remote='origin'):

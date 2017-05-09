@@ -316,3 +316,7 @@ Other
 
 Show a timeline of a your activity, or that of another user. The timeline will
 look like that on your GitLab profile page.
+
+.. describe:: git lab setup-goblet
+
+Set up a configuration for the goblet web interface based on data in GitLab.

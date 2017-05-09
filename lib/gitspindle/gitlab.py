@@ -857,12 +857,10 @@ class GitLab(GitSpindle):
             else:
                 fd.write((repo.description or "").encode('utf-8'))
         if opts['--goblet']:
-            self.gitm('--git-dir', git_dir, 'config', 'goblet.owner', repo.owner.name.encode('utf-8') or repo.owner.login)
-            self.gitm('--git-dir', git_dir, 'config', 'goblet.cloneurlhttp', repo.http_url_to_repo)
-            goblet_dir = os.path.join(git_dir, 'goblet')
-            if not os.path.exists(goblet_dir):
-                os.mkdir(goblet_dir, 0o777)
-                os.chmod(goblet_dir, 0o777)
+            cwd = os.getcwd()
+            os.chdir(git_dir)
+            self.setup_goblet(opts)
+            os.chdir(cwd)
 
     @command
     def protect(self, opts):
@@ -936,6 +934,23 @@ class GitLab(GitSpindle):
             if not PY3:
                 msg = msg.encode('utf-8')
             print(msg)
+
+    @command
+    @wants_root
+    def setup_goblet(self, opts):
+        """\nSet up goblet config based on GitLab config"""
+        tmpOpts = dict(opts)
+        tmpOpts['--root'] = False
+        repo = self.repository(tmpOpts)
+        root = self.repository(opts)
+        owner = getattr(root, 'owner', False)
+        owner = owner and (owner.name or owner.username) or root.namespace.name or root.namespace.path
+        self.gitm('config', 'goblet.owner', owner)
+        self.gitm('config', 'goblet.cloneurlhttp', repo.http_url_to_repo)
+        self.gitm('config', 'goblet.cloneurlssh', repo.ssh_url_to_repo)
+        if repo.description:
+            with open(os.path.join(self.gitm('rev-parse', '--git-dir').stdout.strip(), 'description'), 'w') as fd:
+                fd.write(repo.description)
 
     @command
     def set_origin(self, opts, repo=None, remote='origin'):

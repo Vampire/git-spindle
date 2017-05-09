@@ -316,3 +316,9 @@ command output to BitBucket, for example: :command:`fortune | git bb snippet -`
 .. describe:: git bb snippets [<user>]
 
 List your snippets, or those created by another user.
+
+Other
+-----
+.. describe:: git bb setup-goblet
+
+Set up a configuration for the goblet web interface based on data in Bitbucket.

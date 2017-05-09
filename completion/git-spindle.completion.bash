@@ -97,6 +97,7 @@ _git_lab() {
         remove-member
         repos
         set-origin
+        setup-goblet
         unprotect
         whoami
         whois
@@ -144,6 +145,7 @@ _git_bb() {
         remove-privilege
         repos
         set-origin
+        setup-goblet
         snippet
         snippets
         whoami

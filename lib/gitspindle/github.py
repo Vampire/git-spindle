@@ -1591,21 +1591,21 @@ class GitHub(GitSpindle):
 
 
     @command
-    @wants_parent
+    @wants_root
     def setup_goblet(self, opts):
         """\nSet up goblet config based on GitHub config"""
-        repo = self.repository(opts)
-        repo = self.parent_repo(repo) or repo
-        owner = self.gh.user(repo.owner.login)
-        self.gitm('config', 'goblet.owner-name', owner.name.encode('utf-8') or owner.login)
-        if owner.email:
-            self.gitm('config', 'goblet.owner-mail', owner.email.encode('utf-8'))
-        self.gitm('config', 'goblet.git-url', repo.git_url)
-        self.gitm('config', 'goblet.http-url', repo.clone_url)
-        goblet_dir = os.path.join(self.gitm('rev-parse', '--git-dir').stdout.strip(), 'goblet')
-        if not os.path.exists(goblet_dir):
-            os.mkdir(goblet_dir, 0o777)
-            os.chmod(goblet_dir, 0o777)
+        tmpOpts = dict(opts)
+        tmpOpts['--root'] = False
+        repo = self.repository(tmpOpts)
+        root = self.repository(opts)
+        owner = self.gh.user(root.owner.login)
+        self.gitm('config', 'goblet.owner', owner.name or owner.login)
+        self.gitm('config', 'goblet.cloneurlgit', repo.git_url)
+        self.gitm('config', 'goblet.cloneurlhttp', repo.clone_url)
+        self.gitm('config', 'goblet.cloneurlssh', repo.ssh_url)
+        if repo.description:
+            with open(os.path.join(self.gitm('rev-parse', '--git-dir').stdout.strip(), 'description'), 'w') as fd:
+                fd.write(repo.description)
 
     @command
     def set_origin(self, opts, repo=None, remote='origin'):

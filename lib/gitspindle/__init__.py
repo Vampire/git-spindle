@@ -8,7 +8,7 @@ import tempfile
 import whelk
 import time
 
-__all__ = ['GitSpindle', 'Credential', 'command', 'wants_parent', 'hidden_command']
+__all__ = ['GitSpindle', 'Credential', 'command', 'wants_parent', 'wants_root', 'hidden_command']
 NO_VALUE_SENTINEL = 'NO_VALUE_SENTINEL'
 
 __builtins__['PY3'] = sys.version_info[0] > 2
@@ -41,11 +41,17 @@ def command(fnc):
         fnc.no_login = False
     if not hasattr(fnc, 'wants_parent'):
         fnc.wants_parent = False
+    if not hasattr(fnc, 'wants_root'):
+        fnc.wants_root = False
     return fnc
 hidden_command = lambda fnc: os.getenv('DEBUG') and command(fnc)
 
 def wants_parent(fnc):
     fnc.wants_parent = True
+    return fnc
+
+def wants_root(fnc):
+    fnc.wants_root = True
     return fnc
 
 def no_login(fnc):
@@ -404,6 +410,7 @@ Options:
                 else:
                     opts['extra-opts'] = []
                 opts['--maybe-parent'] = func.wants_parent
+                opts['--root'] = func.wants_root or '--root' in opts and opts['--root']
                 try:
                     func(opts)
                 except KeyboardInterrupt:
