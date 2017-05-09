@@ -52,8 +52,8 @@ Add a repository hook:
 Adds keys to your public keys:
   git hub add-public-keys [<key>...]
 
-Add user's fork as a named remote. The name defaults to the user's loginname:
-  git hub add-remote [--ssh|--http|--git] <user> [<name>]
+Add user's fork or arbitrary repo (containing slash) as a named remote. The name defaults to the user's loginname:
+  git hub add-remote [--ssh|--http|--git] <user_or_repo> [<name>]
 
 Applies a pull request as a series of cherry-picks:
   git hub apply-pr [--parent] <pr-number>
@@ -202,8 +202,8 @@ Add a project member:
 Adds keys to your public keys:
   git lab add-public-keys [<key>...]
 
-Add user's fork as a named remote. The name defaults to the user's loginname:
-  git lab add-remote [--ssh|--http] <user> [<name>]
+Add user's fork or arbitrary repo (containing slash) as a named remote. The name defaults to the user's loginname:
+  git lab add-remote [--ssh|--http] <user_or_repo> [<name>]
 
 Applies a merge request as a series of cherry-picks:
   git lab apply-merge [--parent] <merge-request-number>
@@ -298,8 +298,8 @@ Add privileges for a user to this repo:
 Adds keys to your public keys:
   git bb add-public-keys [<key>...]
 
-Add user's fork as a named remote. The name defaults to the user's loginname:
-  git bb add-remote [--ssh|--http] <user> [<name>]
+Add user's fork or arbitrary repo (containing slash) as a named remote. The name defaults to the user's loginname:
+  git bb add-remote [--ssh|--http] <user_or_repo> [<name>]
 
 Applies a pull request as a series of cherry-picks:
   git bb apply-pr [--parent] <pr-number>

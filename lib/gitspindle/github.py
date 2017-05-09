@@ -298,15 +298,20 @@ class GitHub(GitSpindle):
 
     @command
     def add_remote(self, opts):
-        """[--ssh|--http|--git] <user> [<name>]
-           Add user's fork as a named remote. The name defaults to the user's loginname"""
-        fork = self.find_fork(self.repository(opts), opts['<user>'][0])
-        if fork:
-            url = self.clone_url(fork, opts)
-            name = opts['<name>'] or fork.owner.login
-            self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        """[--ssh|--http|--git] <user_or_repo> [<name>]
+           Add user's fork or arbitrary repo (containing slash) as a named remote. The name defaults to the user's loginname"""
+        if '/' in opts['<user_or_repo>']:
+            opts['<repo>'] = opts['<user_or_repo>']
+            fork = self.repository(opts)
         else:
-            err('Fork of user "%s" does not exist' % opts['<user>'][0])
+            fork = self.find_fork(self.repository(opts), opts['<user_or_repo>'])
+
+        if not fork:
+            err('Fork of user "%s" does not exist' % opts['<user_or_repo>'])
+
+        url = self.clone_url(fork, opts)
+        name = opts['<name>'] or fork.owner.login
+        self.gitm('remote', 'add', '-f', name, url, redirect=False)
 
     @command
     def add_public_keys(self, opts):

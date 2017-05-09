@@ -209,17 +209,22 @@ class GitLab(GitSpindle):
 
     @command
     def add_remote(self, opts):
-        """[--ssh|--http] <user> [<name>]
-           Add user's fork as a named remote. The name defaults to the user's loginname"""
+        """[--ssh|--http] <user_or_repo> [<name>]
+           Add user's fork or arbitrary repo (containing slash) as a named remote. The name defaults to the user's loginname"""
         dwim = self.repository(opts)
-        user = opts['<user>'][0]
-        name = opts['<name>'] or user
-        repo = self.find_repo(user, dwim.path)
-        if not repo:
-            err("Repository %s/%s does not exist" % (user, dwim.path))
-        url = self.clone_url(repo, opts)
+        if '/' in opts['<user_or_repo>']:
+            opts['<repo>'] = opts['<user_or_repo>']
+            fork = self.repository(opts)
+        else:
+            fork = self.find_repo(opts['<user_or_repo>'], dwim.path)
+
+        if not fork:
+            err("Repository %s/%s does not exist" % (opts['<user_or_repo>'], dwim.path))
+
+        url = self.clone_url(fork, opts)
+        name = opts['<name>'] or fork.namespace.path
         self.gitm('remote', 'add', '-f', name, url, redirect=False)
-        self.gitm('config', 'remote.%s.gitlab-id' % name, repo.id)
+        self.gitm('config', 'remote.%s.gitlab-id' % name, fork.id)
 
     @command
     def apply_merge(self, opts):

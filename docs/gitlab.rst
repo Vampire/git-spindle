@@ -165,11 +165,11 @@ Defaults to cloning from a git url, but this can be overridden.
 Calling fork in a previously cloned-but-not-forked repository will create a
 fork of that repository and set up your remotes.
 
-.. describe:: git lab add-remote [--ssh|--http] <user> [<name>]
+.. describe:: git lab add-remote [--ssh|--http] <user_or_repo> [<name>]
 
-Add a users fork as a remote using the specified name or the user's login as
-name for the remote. Defaults to adding an http url, but this can be
-overridden. For private repos SSH is used.
+Add a users fork or arbitrary repo (containing slash) as a remote using
+the specified name or the user's login as name for the remote. Defaults
+to adding an http url, but this can be overridden. For private repos SSH is used.
 
 .. describe:: git lab fetch [--ssh|--http] <user> [<refspec>]
 

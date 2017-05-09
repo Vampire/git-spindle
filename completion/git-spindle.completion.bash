@@ -323,8 +323,10 @@ _git_spindle_add_public_keys() {
 
 _git_spindle_add_remote() {
     __git_spindle_protocols $1 && return
+    [ ${#previous_args[@]} -eq 1 ] || return
 
-    [ ${#previous_args[@]} -eq 1 ] && __git_spindle_forks $1
+    __git_spindle_forks $1
+    __git_spindle_repos $1 no_own
 }
 
 _git_spindle_apply_merge() {

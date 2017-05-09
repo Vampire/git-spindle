@@ -220,11 +220,11 @@ top-most repository in the network of this repository. The option :option:`--rec
 lists the forks recursively down the tree. So to get all repositories in this network
 use the options :option:`--root` and :option:`--recursive` together.
 
-.. describe:: git hub add-remote [--ssh|--http|--git] <user> [<name>]
+.. describe:: git hub add-remote [--ssh|--http|--git] <user_or_repo> [<name>]
 
-Add a users fork as a remote using the specified name or the user's login as
-name for the remote. Defaults to adding an http url, but this can be
-overridden. For private repos SSH is used.
+Add a users fork or arbitrary repo (containing slash) as a remote using
+the specified name or the user's login as name for the remote. Defaults
+to adding an http url, but this can be overridden. For private repos SSH is used.
 
 .. describe:: git hub fetch [--ssh|--http|--git] <user> [<refspec>]
 
