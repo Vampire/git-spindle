@@ -223,8 +223,10 @@ class GitLab(GitSpindle):
 
         url = self.clone_url(fork, opts)
         name = opts['<name>'] or fork.namespace.path
-        self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        self.gitm('remote', 'add', name, url, redirect=False)
+        self.gitm('config', '--add', 'remote.%s.fetch' % name, '+refs/merge-requests/*/head:refs/remotes/%s/merge-requests/*' % name)
         self.gitm('config', 'remote.%s.gitlab-id' % name, fork.id)
+        self.gitm('fetch', '--tags', name, redirect=False)
 
     @command
     def apply_merge(self, opts):
@@ -255,7 +257,7 @@ class GitLab(GitSpindle):
             if not self.question("Continue?", default=False):
                 sys.exit(1)
         # Fetch mr if needed
-        merge_ref = 'refs/merge/%s%d/head' % ('upstream/' if opts['--parent'] else '', mr.iid)
+        merge_ref = 'refs/remotes/%s/merge-requests/%d' % (opts['--parent'] and 'upstream' or 'origin', mr.iid)
         sha = self.git('rev-parse', '--verify', '--quiet', merge_ref).stdout.strip()
         if sha != mr.sha:
             print("Fetching merge request")
@@ -976,6 +978,7 @@ class GitLab(GitSpindle):
             self.gitm('config', 'remote.%s.url' % remote, url)
             self.gitm('config', 'remote.%s.gitlab-id' % remote, repo.id)
         self.gitm('config', '--replace-all', 'remote.%s.fetch' % remote, '+refs/heads/*:refs/remotes/%s/*' % remote)
+        self.gitm('config', '--add', 'remote.%s.fetch' % remote, '+refs/merge-requests/*/head:refs/remotes/%s/merge-requests/*' % remote)
 
         parent = self.parent_repo(repo)
         if parent:
@@ -985,13 +988,12 @@ class GitLab(GitSpindle):
                 self.gitm('config', 'remote.upstream.url', url)
                 self.gitm('config', 'remote.upstream.gitlab-id', parent.id)
             self.gitm('config', 'remote.upstream.fetch', '+refs/heads/*:refs/remotes/upstream/*')
-
-        self.gitm('config', '--add', 'remote.%s.fetch' % remote, '+refs/merge-requests/*/head:refs/merge-requests/*/head')
+            self.gitm('config', '--add', 'remote.upstream.fetch', '+refs/merge-requests/*/head:refs/remotes/upstream/merge-requests/*')
 
         if self.git('ls-remote', remote).stdout.strip():
-            self.gitm('fetch', remote, redirect=False)
+            self.gitm('fetch', '--prune', '--tags', remote, redirect=False)
         if parent:
-            self.gitm('fetch', 'upstream', redirect=False)
+            self.gitm('fetch', '--prune', '--tags', 'upstream', redirect=False)
 
         if remote != 'origin':
             return

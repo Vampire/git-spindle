@@ -178,7 +178,8 @@ class BitBucket(GitSpindle):
 
         url = self.clone_url(fork, opts)
         name = opts['<name>'] or fork.owner['username']
-        self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        self.gitm('remote', 'add', name, url, redirect=False)
+        self.gitm('fetch', '--tags', name, redirect=False)
 
     @command
     def apply_pr(self, opts):
@@ -208,7 +209,7 @@ class BitBucket(GitSpindle):
             if not self.question("Continue?", default=False):
                 sys.exit(1)
         # Fetch PR if needed
-        pull_ref = 'refs/pull/%s%d/head' % ('upstream/' if opts['--parent'] else '', pr.id)
+        pull_ref = 'refs/remotes/%s/pull-requests/%d' % (opts['--parent'] and 'upstream' or 'origin', pr.id)
         sha = self.git('rev-parse', '--verify', '--quiet', pull_ref).stdout.strip()
         if not sha.startswith(pr.source['commit']['hash']):
             print('Fetching pull request')
@@ -779,9 +780,9 @@ class BitBucket(GitSpindle):
             self.gitm('config', 'remote.upstream.fetch', '+refs/heads/*:refs/remotes/upstream/*')
 
         if self.git('ls-remote', remote).stdout.strip():
-            self.gitm('fetch', remote, redirect=False)
+            self.gitm('fetch', '--prune', '--tags', remote, redirect=False)
         if repo.is_fork:
-            self.gitm('fetch', 'upstream', redirect=False)
+            self.gitm('fetch', '--prune', '--tags', 'upstream', redirect=False)
 
         if remote != 'origin':
             return

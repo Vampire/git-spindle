@@ -255,7 +255,7 @@ class GitHub(GitSpindle):
             if not self.question("Continue?", default=False):
                 sys.exit(1)
         # Fetch PR if needed
-        pull_ref = 'refs/pull/%s%d/head' % ('upstream/' if opts['--parent'] else '', pr.number)
+        pull_ref = 'refs/remotes/%s/pull-requests/%d' % (opts['--parent'] and 'upstream' or 'origin', pr.number)
         sha = self.git('rev-parse', '--verify', '--quiet', pull_ref).stdout.strip()
         if sha != pr.head.sha:
             print("Fetching pull request")
@@ -311,7 +311,9 @@ class GitHub(GitSpindle):
 
         url = self.clone_url(fork, opts)
         name = opts['<name>'] or fork.owner.login
-        self.gitm('remote', 'add', '-f', name, url, redirect=False)
+        self.gitm('remote', 'add', name, url, redirect=False)
+        self.gitm('config', '--add', 'remote.%s.fetch' % name, '+refs/pull/*/head:refs/remotes/%s/pull-requests/*' % name)
+        self.gitm('fetch', '--tags', name, redirect=False)
 
     @command
     def add_public_keys(self, opts):
@@ -1631,6 +1633,7 @@ class GitHub(GitSpindle):
             print("Pointing %s to %s" % (remote, url))
             self.gitm('config', 'remote.%s.url' % remote, url)
         self.gitm('config', '--replace-all', 'remote.%s.fetch' % remote, '+refs/heads/*:refs/remotes/%s/*' % remote)
+        self.gitm('config', '--add', 'remote.%s.fetch' % remote, '+refs/pull/*/head:refs/remotes/%s/pull-requests/*' % remote)
 
         if repo.fork:
             parent = self.parent_repo(repo)
@@ -1638,14 +1641,13 @@ class GitHub(GitSpindle):
             if self.git('config', 'remote.upstream.url').stdout.strip() != url:
                 print("Pointing upstream to %s" % url)
                 self.gitm('config', 'remote.upstream.url', url)
-            self.gitm('config', 'remote.upstream.fetch', '+refs/heads/*:refs/remotes/upstream/*')
-
-        self.gitm('config', '--add', 'remote.%s.fetch' % remote, '+refs/pull/*/head:refs/pull/*/head')
+            self.gitm('config', '--replace-all', 'remote.upstream.fetch', '+refs/heads/*:refs/remotes/upstream/*')
+            self.gitm('config', '--add', 'remote.upstream.fetch', '+refs/pull/*/head:refs/remotes/upstream/pull-requests/*')
 
         if self.git('ls-remote', remote).stdout.strip():
-            self.gitm('fetch', remote, redirect=False)
+            self.gitm('fetch', '--prune', '--tags', remote, redirect=False)
         if repo.fork:
-            self.gitm('fetch', 'upstream', redirect=False)
+            self.gitm('fetch', '--prune', '--tags', 'upstream', redirect=False)
 
         if remote != 'origin':
             return

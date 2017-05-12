@@ -152,9 +152,8 @@ organization to create the repository for.
 
 Fix the configuration of your repository's remotes. The remote "origin" will be
 set to your GitHub repository. If "origin" is a fork, an "upstream" remote will
-be set to the repository you forked from. If "origin" is not a fork, a fetch
-refspec is added to fetch the pull requests for "origin" as
-`refs/pull/<id>/head`.
+be set to the repository you forked from. For both, "origin" and "upstream", a fetch
+refspec is added to fetch the pull requests as `refs/remotes/<remote>/pull-requests/<id>`.
 
 All non-tracking branches with a matching counterpart in "origin" will be set to
 track "origin" (push and pull to it). Use :option:`--triangular` to set remotes
@@ -225,6 +224,8 @@ use the options :option:`--root` and :option:`--recursive` together.
 Add a users fork or arbitrary repo (containing slash) as a remote using
 the specified name or the user's login as name for the remote. Defaults
 to adding an http url, but this can be overridden. For private repos SSH is used.
+For the new remote a fetch refspec is added to fetch the pull requests as
+`refs/remotes/<remote>/pull-requests/<id>`.
 
 .. describe:: git hub fetch [--ssh|--http|--git] <user> [<refspec>]
 

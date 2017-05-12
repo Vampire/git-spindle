@@ -333,8 +333,7 @@ _git_spindle_apply_merge() {
     __git_spindle_options "--parent" && return
     [ ${#previous_args[@]} -eq 1 ] || return
 
-    local -a merge_refs=($(__git for-each-ref --format '%(refname:strip=2)' refs/merge-requests/*/head --no-merged))
-    __gitcomp "${merge_refs[*]/%\/head}"
+    __gitcomp "$(__git for-each-ref --format '%(refname:strip=4)' refs/remotes/*/merge-requests/* --no-merged)"
 }
 
 _git_spindle_apply_pr() {
@@ -343,8 +342,7 @@ _git_spindle_apply_pr() {
 
     case "$1,${GIT_SPINDLE_COMPLETE_REMOTE-no}" in
         hub,*|bb,no)
-            local -a pull_refs=($(__git for-each-ref --format '%(refname:strip=2)' refs/pull/*/head --no-merged))
-            __gitcomp "${pull_refs[*]/%\/head}"
+            __gitcomp "$(__git for-each-ref --format '%(refname:strip=4)' refs/remotes/*/pull-requests/* --no-merged)"
             ;;
         bb,*)
             local IFS=$'\n'
