@@ -166,11 +166,16 @@ If you don't want to add a user's fork as a remote, but to want to fetch some
 refs from it, you can use the :command:`fetch` command. You can tell it which
 refs to fetch, and if you don't give a refspec, it will fetch all branches.
 
-.. describe:: git bb browse [--parent] [<repo>] [<section>]
+.. describe:: git bb browse [--parent] [--no-browser] [<repo>] [<section>]
 
 Browse a repository (or its parent) on BitBucket. By default the repository's
 homepage is opened, but you can specify a different section, such as src,
-src, commits, branches, pull-requests, downloads, admin, issues or wiki.
+src, commits, branches, pull-requests, downloads, admin, issues or wiki. If the
+option :option:`--no-browser` is set, the corresponding URL is not opened in
+the browser directly, but output on the console. This can e. g. be helpful if
+you use this on some headless server as you then can open the URL in your
+local browser. You can also achieve this behavior permanently by setting the
+configuration option :option:`gitspindle.no-browser` to :option:`true`.
 
 .. describe:: git bb mirror [--ssh|--http] [--goblet] [<repo>]
 

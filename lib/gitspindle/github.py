@@ -349,7 +349,7 @@ class GitHub(GitSpindle):
 
     @command
     def browse(self, opts):
-        """[--parent] [<repo>] [<section>]
+        """[--parent] [--no-browser] [<repo>] [<section>]
            Open the GitHub page for a repository in a browser"""
         sections = ['issues', 'pulls', 'wiki', 'branches', 'releases', 'contributors', 'graphs', 'settings']
         if opts['<repo>'] in sections and not opts['<section>']:
@@ -358,7 +358,10 @@ class GitHub(GitSpindle):
         url = repo.html_url
         if opts['<section>']:
             url += '/' + opts['<section>']
-        webbrowser.open_new(url)
+        if opts['--no-browser'] or self.git('config', '--bool', 'gitspindle.no-browser').stdout.strip() == 'true':
+            print('Please open the URL %s in your browser' % url)
+        else:
+            webbrowser.open_new(url)
 
     @command
     def calendar(self, opts):
@@ -1516,7 +1519,7 @@ class GitHub(GitSpindle):
 
     @command
     def render(self, opts):
-        """[--save=<outfile>] <file>
+        """[--save=<outfile>|--no-browser] <file>
            Render a markdown document"""
         template = """<!DOCTYPE html>
 <html>
@@ -1550,9 +1553,13 @@ class GitHub(GitSpindle):
             with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as fd:
                 fd.write(html.encode('utf-8'))
                 fd.close()
-                webbrowser.open('file://' + fd.name)
-                time.sleep(1)
-                os.remove(fd.name)
+                url = 'file://' + fd.name
+                if opts['--no-browser'] or self.git('config', '--bool', 'gitspindle.no-browser').stdout.strip() == 'true':
+                    print('Please open the URL %s in your browser' % url)
+                else:
+                    webbrowser.open(url)
+                    time.sleep(1)
+                    os.remove(fd.name)
 
     @command
     def repos(self, opts):

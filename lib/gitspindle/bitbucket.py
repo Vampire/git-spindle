@@ -239,7 +239,7 @@ class BitBucket(GitSpindle):
 
     @command
     def browse(self, opts):
-        """[--parent] [<repo>] [<section>]
+        """[--parent] [--no-browser] [<repo>] [<section>]
            Open the GitHub page for a repository in a browser"""
         sections = ['src', 'commits', 'branches', 'pull-requests', 'downloads', 'admin', 'issues', 'wiki']
         if opts['<repo>'] in sections and not opts['<section>']:
@@ -248,7 +248,10 @@ class BitBucket(GitSpindle):
         url = repo.links['html']['href']
         if opts['<section>']:
             url += '/' + opts['<section>']
-        webbrowser.open_new(url)
+        if opts['--no-browser'] or self.git('config', '--bool', 'gitspindle.no-browser').stdout.strip() == 'true':
+            print('Please open the URL %s in your browser' % url)
+        else:
+            webbrowser.open_new(url)
 
     @command
     def cat(self, opts):

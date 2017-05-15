@@ -275,7 +275,7 @@ class GitLab(GitSpindle):
 
     @command
     def browse(self, opts):
-        """[--parent] [<repo>] [<section>]
+        """[--parent] [--no-browser] [<repo>] [<section>]
            Open the GitLab page for a repository in a browser"""
         sections = ['issues', 'merge_requests', 'wiki', 'files', 'commits', 'branches', 'graphs', 'settings']
         if opts['<repo>'] in sections and not opts['<section>']:
@@ -287,7 +287,10 @@ class GitLab(GitSpindle):
         url = repo.web_url
         if opts['<section>']:
             url += '/' + section_map.get(opts['<section>'], opts['<section>'])
-        webbrowser.open_new(url)
+        if opts['--no-browser'] or self.git('config', '--bool', 'gitspindle.no-browser').stdout.strip() == 'true':
+            print('Please open the URL %s in your browser' % url)
+        else:
+            webbrowser.open_new(url)
 
     @command
     def calendar(self, opts):

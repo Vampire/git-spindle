@@ -59,7 +59,7 @@ Applies a pull request as a series of cherry-picks:
   git hub apply-pr [--parent] <pr-number>
 
 Open the GitHub page for a repository in a browser:
-  git hub browse [--parent] [<repo>] [<section>]
+  git hub browse [--parent] [--no-browser] [<repo>] [<section>]
 
 Show a timeline of a user's activity:
   git hub calendar [<user>]
@@ -167,7 +167,7 @@ Remove a hook:
   git hub remove-hook <name> [<repo>]
 
 Render a markdown document:
-  git hub render [--save=<outfile>] <file>
+  git hub render [--save=<outfile>|--no-browser] <file>
 
 List all repos of a user, by default yours:
   git hub repos [--no-forks] [<user>]
@@ -209,7 +209,7 @@ Applies a merge request as a series of cherry-picks:
   git lab apply-merge [--parent] <merge-request-number>
 
 Open the GitLab page for a repository in a browser:
-  git lab browse [--parent] [<repo>] [<section>]
+  git lab browse [--parent] [--no-browser] [<repo>] [<section>]
 
 Show a timeline of a user's activity:
   git lab calendar [<user>]
@@ -305,7 +305,7 @@ Applies a pull request as a series of cherry-picks:
   git bb apply-pr [--parent] <pr-number>
 
 Open the GitHub page for a repository in a browser:
-  git bb browse [--parent] [<repo>] [<section>]
+  git bb browse [--parent] [--no-browser] [<repo>] [<section>]
 
 Display the contents of a file on BitBucket:
   git bb cat <file>...

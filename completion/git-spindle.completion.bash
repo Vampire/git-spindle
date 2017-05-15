@@ -357,7 +357,7 @@ _git_spindle_apply_pr() {
 }
 
 _git_spindle_browse() {
-    __git_spindle_options "--parent" && return
+    __git_spindle_options "--parent --no-browser" && return
 
     case ${#previous_args[@]} in
         1)
@@ -965,6 +965,7 @@ _git_spindle_render() {
             return
             ;;
         *)
+            __git_spindle_options "--no-browser"
             __git_spindle_options "--save=" no_space && return
             ;;
     esac
