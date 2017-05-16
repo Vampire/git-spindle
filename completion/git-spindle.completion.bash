@@ -474,14 +474,40 @@ _git_spindle_create() {
 
             [ ${GIT_SPINDLE_COMPLETE_REMOTE-no} = no ] && return
 
-            local IFS=$' ,\r'
-            local -a line
-            while read -a line; do
-                if [ "${line[*]:0:2}" = "Member of" ]; then
-                    __gitcomp "${line[*]:2}"
-                    return
-                fi
-            done < <(__git $1 whoami 2>/dev/null)
+            case "$1,$prev,$cur" in
+                bb,--team,*/*/*)
+                    ;;
+                bb,--team,*/*)
+                    local IFS=$' ,\r' line projects=0
+                    while read line; do
+                        if [ "$line" = "Projects:" ]; then
+                            projects=1
+                            continue
+                        fi
+                        if [ $projects -eq 1 ]; then
+                            case "$line" in
+                                -\ *)
+                                    line="${line#*[}"
+                                    __gitcompappend "${line%%]*}" "${cur%/*}/" "${cur#*/}" " "
+                                    ;;
+                                *)
+                                    return
+                                    ;;
+                            esac
+                        fi
+                    done < <(__git bb whois "${cur%/*}" 2>/dev/null)
+                    ;;
+                *)
+                    local IFS=$' ,\r'
+                    local -a line
+                    while read -a line; do
+                        if [ "${line[*]:0:2}" = "Member of" ]; then
+                            __gitcompadd "${line[*]:2}" "" "$cur" "/"
+                            return
+                        fi
+                    done < <(__git $1 whoami 2>/dev/null)
+                    ;;
+            esac
             ;;
         *)
             __git_spindle_options "--private"

@@ -127,9 +127,11 @@ class User(BBobject):
     def repository(self, slug):
         return Repository(self.bb, owner=self.username, slug=slug)
 
-    def create_repository(self, slug, description, is_private, has_issues, has_wiki):
+    def create_repository(self, slug, description, is_private, has_issues, has_wiki, project=None):
         data = {'owner': self.username, 'slug': slug, 'description': description, 'is_private': is_private,
                 'scm': 'git', 'has_issues': has_issues, 'has_wiki': has_wiki}
+        if project:
+            data['project'] = {'key': project}
         repo = self.post(uritemplate.expand(Repository.uri[1], slug=slug, owner=self.username), data=json.dumps(data), headers={'content-type': 'application/json'})
         repo['is_fork'] = False
         return Repository(self.bb, mode=None, **repo)
@@ -169,8 +171,17 @@ class Team(User):
     def members(self):
         return TeamMember.list(self.bb, username=self.username)
 
+    def project(self, key):
+        return Project(self.bb, owner=self.username, project_key=key)
+
+    def projects(self):
+        return Project.list(self.bb, owner=self.username)
+
 class TeamMember(User):
     uri = 'https://api.bitbucket.org/2.0/teams/{username}/members'
+
+class Project(BBobject):
+    uri = 'https://api.bitbucket.org/2.0/teams/{owner}/projects/{project_key}'
 
 def ssh_fix(url):
     if not url.startswith('ssh://'):

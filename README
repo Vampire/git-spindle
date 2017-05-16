@@ -317,7 +317,7 @@ Configure git-spindle, similar to git-config:
   git bb config [--unset] <key> [<value>]
 
 Create a repository on bitbucket to push to:
-  git bb create [--private] [--team=<team>] [--description=<description>]
+  git bb create [--private] [--team=<team>/<project>] [--description=<description>]
 
 Lists all keys for a repo:
   git bb deploy-keys [<repo>]

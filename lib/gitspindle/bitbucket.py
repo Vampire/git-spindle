@@ -298,12 +298,20 @@ class BitBucket(GitSpindle):
 
     @command
     def create(self, opts):
-        """[--private] [--team=<team>] [--description=<description>]
+        """[--private] [--team=<team>/<project>] [--description=<description>]
            Create a repository on bitbucket to push to"""
         root = self.gitm('rev-parse', '--show-toplevel').stdout.strip()
         name = os.path.basename(root)
+        project = None
         if opts['--team']:
-            dest = self.bb.team(opts['--team'])
+            team, project = (opts['--team'].split('/', 1) + [None])[:2]
+            if not project:
+                err('When creating a repository for a team, you also need to specify the project')
+            dest = self.bb.team(team)
+            try:
+                dest.project(project)
+            except bbapi.BitBucketError:
+                err('Project with key "%s" does not exist for team "%s"' % (project, team))
         else:
             dest = self.me
         try:
@@ -312,7 +320,7 @@ class BitBucket(GitSpindle):
         except bbapi.BitBucketError:
             pass
 
-        repo = dest.create_repository(slug=name, description=opts['--description'], is_private=opts['--private'], has_issues=True, has_wiki=True)
+        repo = dest.create_repository(slug=name, description=opts['--description'], is_private=opts['--private'], has_issues=True, has_wiki=True, project=project)
         if 'origin' in self.remotes():
             print("Remote 'origin' already exists, adding the BitBucket repository as 'bitbucket'")
             self.set_origin(opts, repo=repo, remote='bitbucket')
@@ -862,3 +870,6 @@ class BitBucket(GitSpindle):
                 print('Members:')
                 for member in user.members():
                     print(" - %s" % member.username)
+                print('Projects:')
+                for project in user.projects():
+                    print(" - [%s] %s" % (project.key, project.name))
