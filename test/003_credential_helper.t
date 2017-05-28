@@ -40,11 +40,11 @@ for spindle in hub lab bb; do
         git_${spindle}_2 config $tokenkey \$token &&
         git_${spindle}_2 whoami | grep -q '^Profile.*/$(username git_${spindle}_2)'
     "
-done 
+done
 
 # Make sure other tests know about the new tokens
 test_expect_success "Updating global .gitspindle" "
-    mv .gitspindle ..
+    mv .gitspindle "$SHARNESS_TEST_DIRECTORY"
 "
 
 test_done

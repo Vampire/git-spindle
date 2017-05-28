@@ -44,7 +44,7 @@ test_expect_success "Resetting non-numbered accounts" "
 
 # Make sure other tests know about the new tokens
 test_expect_success "Updating global .gitspindle" "
-    mv .gitspindle ..
+    mv .gitspindle "$SHARNESS_TEST_DIRECTORY"
 "
 
 test_done
