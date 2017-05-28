@@ -4,12 +4,12 @@ test_description="Testing branch protections"
 
 . ./setup.sh
 
-test_expect_success lab "Cloning source repo" "
+test_expect_success hub "Cloning source repo" "
     rm -rf whelk &&
     git_hub_1 clone whelk
 "
 
-test_expect_success lab "Protect and unprotect master" "
+test_expect_success hub "Protect and unprotect master" "
     (cd whelk &&
     git_hub_1 protected > actual &&
     : > expected &&
