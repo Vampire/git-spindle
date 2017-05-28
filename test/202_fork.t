@@ -5,7 +5,7 @@ test_description="Forking repositories"
 . ./setup.sh
 
 test_expect_success "Clone extra repository" "
-    git clone https://github.com/seveas/python-hpilo
+    git clone https://$(spindle_host git_hub_)/seveas/python-hpilo
 "
 
 for spindle in hub lab bb; do

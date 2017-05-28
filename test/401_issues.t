@@ -7,7 +7,7 @@ test_description="Testing issues"
 id="$(bash -c 'echo $RANDOM')-$$"
 
 test_expect_success "Cloning source repo" "
-    git clone http://github.com/seveas/whelk
+    git clone http://$(spindle_host git_hub_)/seveas/whelk
 "
 
 export GIT_EDITOR=fake-editor

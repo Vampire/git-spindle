@@ -5,7 +5,7 @@ test_description="Testing cat"
 . ./setup.sh
 
 test_expect_success "Cloning source repo" "
-    git clone http://github.com/seveas/whelk &&
+    git clone http://$(spindle_host git_hub_)/seveas/whelk &&
     cat whelk/setup.py | md5sum > expected.plain &&
     cat whelk/docs/presentation/whelk.jpg | md5sum > expected.binary &&
     cat whelk/docs/conf.py | md5sum > expected.relative &&

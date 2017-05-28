@@ -5,7 +5,7 @@ test_description="Testing ls"
 . ./setup.sh
 
 test_expect_success "Cloning source repo" "
-    git clone https://github.com/seveas/whelk
+    git clone https://$(spindle_host git_hub_)/seveas/whelk
 "
 
 for spindle in lab hub bb; do

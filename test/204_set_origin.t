@@ -5,7 +5,7 @@ test_description="Testing set_origin"
 . ./setup.sh
 
 test_expect_success "Cloning repository" "
-    git clone https://github.com/seveas/whelk &&
+    git clone https://$(spindle_host git_hub_)/seveas/whelk &&
     git -C whelk remote remove origin
 "
 

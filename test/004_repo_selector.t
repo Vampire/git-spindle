@@ -14,11 +14,11 @@ export DEBUG=1
 
 test_expect_success "Test prep" "
     git init &&
-    git remote add origin http://github.com/seveas/whelk &&
-    git remote add github http://github.com/reinout/whelk &&
-    git remote add bitbucket http://bitbucket.org/seveas/whelk &&
-    git remote add gitlab http://gitlab.com/seveas/whelk &&
-    git remote add local http://gitlab.kaarsemaker.net/seveas2/whelk
+    git remote add origin http://$(spindle_host git_hub_)/seveas/whelk &&
+    git remote add github http://$(spindle_host git_hub_)/reinout/whelk &&
+    git remote add bitbucket http://$(spindle_host git_bb_)/seveas/whelk &&
+    git remote add gitlab http://$(spindle_host git_lab_)/seveas/whelk &&
+    git remote add local $(spindle_host git_lab_local)/seveas2/whelk
 "
 
 test_expect_success hub "Selecting the right repo from the config (hub)" "
@@ -60,21 +60,21 @@ test_expect_success bb "Specifying a repo on the command line (bb)" "
 git remote rm local
 
 test_expect_success hub "Repository not found (hub)" "
-    git remote set-url origin http://github.com/seveas/whelk.broken &&
+    git remote set-url origin http://$(spindle_host git_hub_)/seveas/whelk.broken &&
     echo 'Repository seveas/whelk.broken could not be found on GitHub' > expected &&
     test_must_fail git_hub run-shell -c repo 2> actual &&
     test_cmp expected actual
 "
 
 test_expect_success lab "Repository not found (lab)" "
-    git remote set-url origin http://gitlab.com/seveas/whelk.broken &&
+    git remote set-url origin http://$(spindle_host git_lab_)/seveas/whelk.broken &&
     echo 'Repository seveas/whelk.broken could not be found on GitLab' > expected &&
     test_must_fail git_lab run-shell -c repo 2> actual &&
     test_cmp expected actual
 "
 
 test_expect_success bb "Repository not found (bb)" "
-    git remote set-url origin http://bitbucket.org/seveas/whelk.broken &&
+    git remote set-url origin http://$(spindle_host git_bb_)/seveas/whelk.broken &&
     echo 'Repository seveas/whelk.broken could not be found on BitBucket' > expected &&
     test_must_fail git_bb run-shell -c repo 2> actual &&
     test_cmp expected actual
@@ -83,7 +83,7 @@ test_expect_success bb "Repository not found (bb)" "
 git remote rm origin
 
 test_expect_success lab_local "GitLab local install" "
-    git remote add local http://gitlab.kaarsemaker.net/seveas2/whelk &&
+    git remote add local $(spindle_host git_lab_local)/seveas2/whelk &&
 
     echo seveas2/whelk > expected &&
     echo seveas2/whelk >> expected &&

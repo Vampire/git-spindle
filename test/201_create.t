@@ -5,12 +5,12 @@ test_description="Create new repos"
 . ./setup.sh
 
 test_expect_success "Clone source repos" "
-    git clone https://github.com/seveas/whelk.git &&
+    git clone https://$(spindle_host git_hub_)/seveas/whelk.git &&
     # Contains a tree that has a .git directory
     git -C whelk update-ref -d refs/remotes/origin/gh-pages &&
-    git clone https://github.com/seveas/hacks.git &&
-    git clone https://github.com/seveas/python-zonediff.git &&
-    git clone https://github.com/seveas/python-snmpclient
+    git clone https://$(spindle_host git_hub_)/seveas/hacks.git &&
+    git clone https://$(spindle_host git_hub_)/seveas/python-zonediff.git &&
+    git clone https://$(spindle_host git_hub_)/seveas/python-snmpclient
 "
 
 for spindle in hub lab bb; do
@@ -38,14 +38,14 @@ done;
 
 test_expect_success hub,lab,bb "Creating a repo does not overwrite 'origin'" "
     cat >expected <<EOF &&
-bitbucket	git@bitbucket.org:XXX/whelk.git (fetch)
-bitbucket	git@bitbucket.org:XXX/whelk.git (push)
-github	git@github.com:XXX/whelk.git (fetch)
-github	git@github.com:XXX/whelk.git (push)
-gitlab	git@gitlab.com:XXX/whelk.git (fetch)
-gitlab	git@gitlab.com:XXX/whelk.git (push)
-origin	https://github.com/seveas/whelk.git (fetch)
-origin	https://github.com/seveas/whelk.git (push)
+bitbucket	git@$(spindle_host git_bb_):XXX/whelk.git (fetch)
+bitbucket	git@$(spindle_host git_bb_):XXX/whelk.git (push)
+github	git@$(spindle_host git_hub_):XXX/whelk.git (fetch)
+github	git@$(spindle_host git_hub_):XXX/whelk.git (push)
+gitlab	git@$(spindle_host git_lab_):XXX/whelk.git (fetch)
+gitlab	git@$(spindle_host git_lab_):XXX/whelk.git (push)
+origin	https://$(spindle_host git_hub_)/seveas/whelk.git (fetch)
+origin	https://$(spindle_host git_hub_)/seveas/whelk.git (push)
 EOF
     git -C whelk remote -v > actual &&
     sort
