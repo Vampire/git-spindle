@@ -13,7 +13,7 @@ if [ x"$PYTHON" = x ]; then
 fi
 
 test -z "$NO_GITHUB" && test_set_prereq hub && test_set_prereq REMOTE
-test -z "$NO_GITLAB" && test_set_prereq lab && test_set_prereq REMOTE
+test -z "$NO_GITLAB$NO_GITLAB_CLOUD" && test_set_prereq lab && test_set_prereq REMOTE
 test -z "$NO_GITLAB$NO_GITLAB_LOCAL" && test_set_prereq lab_local && test_set_prereq REMOTE
 test -z "$NO_BITBUCKET" && test_set_prereq bb && test_set_prereq REMOTE
 test -n "$AUTHORTESTS" && test_set_prereq author

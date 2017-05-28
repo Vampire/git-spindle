@@ -33,6 +33,7 @@ NO_GITHUB       -- don't test github
 NO_BITBUCKET    -- don't test bitbucket
 NO_GITLAB       -- don't test gitlab
 NO_GITLAB_LOCAL -- don't test a local gitlab instance
+NO_GITLAB_CLOUD -- don't test the gitlab cloud instance
 AUTHORTESTS     -- run tests only the author needs to run
 
 Adding to the testsuite
