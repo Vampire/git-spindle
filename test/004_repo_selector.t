@@ -88,7 +88,7 @@ test_expect_success lab_local "GitLab local install" "
     echo seveas2/whelk > expected &&
     echo seveas2/whelk >> expected &&
 
-    git_lab --account gitlab-test-local run-shell -c \"print('%s/%s' % (repo.owner.username, repo.name))\" > actual &&
+    git_lab_local run-shell -c \"print('%s/%s' % (repo.owner.username, repo.name))\" > actual &&
     git remote rm gitlab &&
     git_lab run-shell -c \"print('%s/%s' % (repo.owner.username, repo.name))\" >> actual &&
 

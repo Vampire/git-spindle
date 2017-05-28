@@ -35,21 +35,21 @@ git_lab() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-lab" "$@"; }
 git_bb()  { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-bb"  "$@"; }
 
 git_1() { GITSPINDLE_ACCOUNT="test-1" git "$@"; }
-git_hub_1() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-hub" --account github-test-1    "$@"; }
-git_lab_1() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-lab" --account gitlab-test-1    "$@"; }
-git_bb_1()  { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-bb"  --account bitbucket-test-1 "$@"; }
+git_hub_1() { git_hub --account github-test-1    "$@"; }
+git_lab_1() { git_lab --account gitlab-test-1    "$@"; }
+git_bb_1()  { git_bb  --account bitbucket-test-1 "$@"; }
 
 git_2() { GITSPINDLE_ACCOUNT="test-2" git "$@"; }
-git_hub_2() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-hub" --account github-test-2    "$@"; }
-git_lab_2() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-lab" --account gitlab-test-2    "$@"; }
-git_bb_2()  { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-bb"  --account bitbucket-test-2 "$@"; }
+git_hub_2() { git_hub --account github-test-2    "$@"; }
+git_lab_2() { git_lab --account gitlab-test-2    "$@"; }
+git_bb_2()  { git_bb  --account bitbucket-test-2 "$@"; }
 
 git_3() { GITSPINDLE_ACCOUNT="test-3" git "$@"; }
-git_hub_3() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-hub" --account github-test-3    "$@"; }
-git_lab_3() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-lab" --account gitlab-test-3    "$@"; }
-git_bb_3()  { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-bb"  --account bitbucket-test-3 "$@"; }
+git_hub_3() { git_hub --account github-test-3    "$@"; }
+git_lab_3() { git_lab --account gitlab-test-3    "$@"; }
+git_bb_3()  { git_bb  --account bitbucket-test-3 "$@"; }
 
-git_lab_local() { "$PYTHON" "$SHARNESS_BUILD_DIRECTORY/bin/git-lab" --account gitlab-test-local "$@"; }
+git_lab_local() { git_lab --account gitlab-test-local "$@"; }
 
 all_spindles="git_hub_1 git_lab_1 git_bb_1 git_lab_local git_hub_2 git_lab_2 git_bb_2 git_hub_3 git_lab_3 git_bb_3"
 
