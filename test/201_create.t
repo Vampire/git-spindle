@@ -65,14 +65,14 @@ done;
 
 export DEBUG=1
 if test_have_prereq hub; then
-    test $(git_hub_1 run-shell -c 'print self.me.plan.name') != 'free' && test_set_prereq hub-nonfree
+    test $(git_hub_1 run-shell -c 'print(self.me.plan.name)') != 'free' && test_set_prereq hub-nonfree
 fi
 
 test_expect_success hub,hub-nonfree "Create private repo (hub)" "
     ( cd python-zonediff &&
     echo True > expected &&
     git_hub_1 create --private &&
-    git_hub_1 run-shell -c 'print repo.private' > actual &&
+    git_hub_1 run-shell -c 'print(repo.private)' > actual &&
     test_cmp expected actual )
 "
 
@@ -80,7 +80,7 @@ test_expect_success lab "Create private repo (lab)" "
     ( cd python-zonediff &&
     echo True > expected &&
     git_lab_1 create --private &&
-    git_lab_1 run-shell -c 'print repo.visibility_level == 0' > actual &&
+    git_lab_1 run-shell -c 'print(repo.visibility_level == 0)' > actual &&
     test_cmp expected actual )
 "
 
@@ -88,7 +88,7 @@ test_expect_success lab "Create internal repo (lab)" "
     ( cd python-snmpclient &&
     echo True > expected &&
     git_lab_1 create --internal &&
-    git_lab_1 run-shell -c 'print repo.visibility_level == 10' > actual &&
+    git_lab_1 run-shell -c 'print(repo.visibility_level == 10)' > actual &&
     test_cmp expected actual )
 "
 
@@ -96,7 +96,7 @@ test_expect_success bb "Create private repo (bb)" "
     ( cd python-zonediff &&
     echo True > expected &&
     git_bb_1 create --private &&
-    git_bb_1 run-shell -c 'print repo.is_private' > actual &&
+    git_bb_1 run-shell -c 'print(repo.is_private)' > actual &&
     test_cmp expected actual )
 "
 
