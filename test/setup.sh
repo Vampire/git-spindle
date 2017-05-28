@@ -93,8 +93,19 @@ spindle_host() {
             ;;
     esac
 }
+
 spindle_remote() {
-    echo $(spindle_host $1) | sed -e 's/\..*//'
+    case $1 in
+        git_hub_*)
+            echo github
+            ;;
+        git_lab_*)
+            echo gitlab
+            ;;
+        git_bb_*)
+            echo bitbucket
+            ;;
+    esac
 }
 
 spindle_namespace() {
