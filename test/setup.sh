@@ -137,5 +137,5 @@ test_commit() {
     commit_count=$(expr $commit_count + 1) &&
     echo "$(date) - $commit_count" >testfile &&
     git add testfile &&
-    git commit -m "Test commit $commit_count"
+    git -c 'user.name=test' -c 'user.email=t@e.st' commit -m "Test commit $commit_count"
 }
