@@ -71,9 +71,16 @@ req() {
 }
 
 spindle_host() {
+    local spindle=$1
+    local testsuite="$(spindle_remote $spindle)-test-${spindle##*_}"
+    local host="$(git config -f "$HOME/.gitspindle" "testsuite.$testsuite.host")"
+    if [ -n "$host" ]; then
+        echo $host
+        return
+    fi
     case $1 in
         git_lab_local)
-            echo gitlab.kaarsemaker.net
+            echo gitlab-test-local needs a configured host >&2
             ;;
         git_hub_*)
             echo github.com

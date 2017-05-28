@@ -64,6 +64,7 @@ done
 test_expect_success lab_local "Setting origin (local gitlab)" "
     (cd whelk &&
     host=\$(spindle_host git_lab_local) &&
+    host=\${host#*://} &&
     git_lab_local set-origin &&
     git remote -v &&
     git config remote.origin.url | grep -q \$host)
