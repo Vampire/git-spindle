@@ -135,7 +135,7 @@ username() {(
 commit_count=0
 test_commit() {
     commit_count=$(expr $commit_count + 1) &&
-    fortune >testfile &&
+    echo "$(date) - $commit_count" >testfile &&
     git add testfile &&
     git commit -m "Test commit $commit_count"
 }
