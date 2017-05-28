@@ -18,7 +18,7 @@ test_expect_success "Test prep" "
     git remote add github http://$(spindle_host git_hub_)/reinout/whelk &&
     git remote add bitbucket http://$(spindle_host git_bb_)/seveas/whelk &&
     git remote add gitlab http://$(spindle_host git_lab_)/seveas/whelk &&
-    git remote add local $(spindle_host git_lab_local)/seveas2/whelk
+    git remote add local $(spindle_host git_lab_local)/seveas/whelk
 "
 
 test_expect_success hub "Selecting the right repo from the config (hub)" "
@@ -83,10 +83,10 @@ test_expect_success bb "Repository not found (bb)" "
 git remote rm origin
 
 test_expect_success lab_local "GitLab local install" "
-    git remote add local $(spindle_host git_lab_local)/seveas2/whelk &&
+    git remote add local $(spindle_host git_lab_local)/seveas/whelk &&
 
-    echo seveas2/whelk > expected &&
-    echo seveas2/whelk >> expected &&
+    echo seveas/whelk > expected &&
+    echo seveas/whelk >> expected &&
 
     git_lab_local run-shell -c \"print('%s/%s' % (repo.owner.username, repo.name))\" > actual &&
     git remote rm gitlab &&
