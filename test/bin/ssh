@@ -3,6 +3,7 @@ NUM=${GITSPINDLE_ACCOUNT//[-a-z]}
 NUM=${NUM:-1}
 unset SSH_AUTH_SOCK
 exec /usr/bin/ssh \
+    -o StrictHostKeyChecking=no \
     -o IdentityFile="$SHARNESS_TEST_DIRECTORY/.ssh/id_rsa-$NUM" \
     -o ControlMaster=no \
     -i "$SHARNESS_TEST_DIRECTORY/.ssh/id_rsa-$NUM" \
