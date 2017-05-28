@@ -26,8 +26,12 @@ test_expect_success hub "Creating personal access token and storing it in a cred
         test_cmp expected ~/.git-credentials
 "
 
+#TODO Password shouldn't be requested two times
 test_expect_success hub,2fa,INTERACTIVE "Creating personal access token (2fa user)" "
-        git_hub_3 create-token
+        password=\$(git config -f .gitspindle testsuite.github-test-3.password) &&
+        echo -n 'Two-Factor Authentication Code: ' &&
+        read otp &&
+        (echo \"\$password\"; echo \"\$otp\"; echo \"\$password\" ) | git_hub_3 create-token
 "
 
 test_done
