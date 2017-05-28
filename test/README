@@ -7,15 +7,17 @@ go at it, these instructions should help.
 Accounts
 --------
 You will need 3 accounts on each of gitlab.com, bitbucket.org and github.com.
-The word 'test' must appear in their name. You will also need a local GitLab
-instance, where a user 'seveas' must exist and have a public repo named
-'whelk'.
+You will also need a local GitLab instance, where a user 'seveas' must exist
+and have a public repo named 'whelk'.
 
 All these accounts must have names that start with git-spindle-test- and must
 be added to a .gitspindle file in this directory under aliases with mandatory
 names. It's not a normal .gitspindle file, please see the example in this
 directory. Note that the testsuite will add extra sections to this configfile
 storing access tokens.
+
+The first test account for each service also has to have an existing and accessible
+org / public group / team configured in the .gitspindle file.
 
 The third GitHub test account must have two-factor authentication set up to be
 able to test two-factor authentication.
@@ -35,6 +37,9 @@ NO_GITLAB       -- don't test gitlab
 NO_GITLAB_LOCAL -- don't test a local gitlab instance
 NO_GITLAB_CLOUD -- don't test the gitlab cloud instance
 AUTHORTESTS     -- run tests only the author needs to run
+TWOFACTORTESTS  -- run tests that need two-factor authentication
+TEST_OPTS       -- give these options to the individual tests, you can find valid
+                   options at https://github.com/chriscool/sharness#command-line-options
 
 Adding to the testsuite
 -----------------------
