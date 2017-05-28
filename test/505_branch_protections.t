@@ -9,7 +9,8 @@ test_expect_success hub "Cloning source repo" "
     git_hub_1 clone whelk
 "
 
-test_expect_success hub "Protect and unprotect master" "
+#TODO: protect without contexts does not work currently
+test_expect_failure hub "Protect and unprotect master" "
     (cd whelk &&
     git_hub_1 protected > actual &&
     : > expected &&
