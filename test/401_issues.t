@@ -6,7 +6,7 @@ test_description="Testing issues"
 
 id="$(bash -c 'echo $RANDOM')-$$"
 
-test_expect_success "Cloning source repo" "
+test_expect_success REMOTE "Cloning source repo" "
     git clone http://$(spindle_host git_hub_)/seveas/whelk
 "
 

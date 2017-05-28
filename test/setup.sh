@@ -12,10 +12,10 @@ if [ x"$PYTHON" = x ]; then
     PYTHON=python
 fi
 
-test -z "$NO_GITHUB" && test_set_prereq hub
-test -z "$NO_GITLAB" && test_set_prereq lab
-test -z "$NO_GITLAB$NO_GITLAB_LOCAL" && test_set_prereq lab_local
-test -z "$NO_BITBUCKET" && test_set_prereq bb
+test -z "$NO_GITHUB" && test_set_prereq hub && test_set_prereq REMOTE
+test -z "$NO_GITLAB" && test_set_prereq lab && test_set_prereq REMOTE
+test -z "$NO_GITLAB$NO_GITLAB_LOCAL" && test_set_prereq lab_local && test_set_prereq REMOTE
+test -z "$NO_BITBUCKET" && test_set_prereq bb && test_set_prereq REMOTE
 test -n "$AUTHORTESTS" && test_set_prereq author
 test -n "$TWOFACTORTESTS" && test_set_prereq 2fa && test_set_prereq INTERACTIVE
 

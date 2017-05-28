@@ -4,7 +4,7 @@ test_description="Testing ls"
 
 . ./setup.sh
 
-test_expect_success "Cloning source repo" "
+test_expect_success REMOTE "Cloning source repo" "
     git clone https://$(spindle_host git_hub_)/seveas/whelk
 "
 

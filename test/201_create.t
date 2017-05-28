@@ -4,7 +4,7 @@ test_description="Create new repos"
 
 . ./setup.sh
 
-test_expect_success "Clone source repos" "
+test_expect_success REMOTE "Clone source repos" "
     git clone https://$(spindle_host git_hub_)/seveas/whelk.git &&
     # Contains a tree that has a .git directory
     git -C whelk update-ref -d refs/remotes/origin/gh-pages &&

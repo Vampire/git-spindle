@@ -4,7 +4,7 @@ test_description="Forking repositories"
 
 . ./setup.sh
 
-test_expect_success "Clone extra repository" "
+test_expect_success REMOTE "Clone extra repository" "
     git clone https://$(spindle_host git_hub_)/seveas/python-hpilo
 "
 
