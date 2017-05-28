@@ -29,8 +29,9 @@ test_expect_success hub "Add mandatory checks" "
     (cd whelk &&
     git_hub_1 protect debian --contexts foo,bar --enforcement-level=non_admins &&
     git_hub_1 protected > actual &&
-    echo 'debian (bar,foo must pass for non_admins)' > expected &&
-    test_cmp expected actual)
+    echo 'debian (foo,bar must pass for non_admins)' > expected1 &&
+    echo 'debian (bar,foo must pass for non_admins)' > expected2 &&
+    (test_cmp expected1 actual || test_cmp expected2 actual))
 "
 
 test_expect_success lab "Cloning source repo" "
