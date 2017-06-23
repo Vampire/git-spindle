@@ -1312,16 +1312,18 @@ class GitHub(GitSpindle):
         rendered = github3.markdown(data)
         if isinstance(rendered, bytes):
             rendered = rendered.decode('utf-8')
+        rendered = rendered.replace('user-content-', '')
         html = template % (os.path.basename(opts['<file>'][0]), rendered)
         if opts['--save']:
             with open(opts['--save'], 'w') as fd:
                 fd.write(html)
         else:
-            with tempfile.NamedTemporaryFile(suffix='.html') as fd:
+            with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as fd:
                 fd.write(html.encode('utf-8'))
-                fd.flush()
+                fd.close()
                 webbrowser.open('file://' + fd.name)
                 time.sleep(1)
+                os.remove(fd.name)
 
     @command
     def repos(self, opts):
