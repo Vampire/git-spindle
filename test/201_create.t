@@ -32,9 +32,12 @@ for spindle in hub lab bb; do
         git_${spindle}_1 create &&
         git_${spindle}_1 repos | sed -e 's/ .*//' > actual &&
         test_cmp expected actual &&
+        for attempt in \$(seq 1 120); do
+            { git_1 push $(spindle_remote git_${spindle}_1) refs/remotes/origin/*:refs/heads/* refs/tags/*:refs/tags/* && break; } || sleep 1
+        done &&
         git_1 push $(spindle_remote git_${spindle}_1) refs/remotes/origin/*:refs/heads/* refs/tags/*:refs/tags/* )
     "
-done;
+done
 
 test_expect_success hub,lab,bb "Creating a repo does not overwrite 'origin'" "
     cat >expected <<EOF &&

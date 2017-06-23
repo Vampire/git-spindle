@@ -18,6 +18,9 @@ for spindle in hub lab bb; do
     test_expect_success $spindle "Create repo ($spindle)" "
         ( cd python-hpilo &&
         git_${spindle}_1 create &&
+        for attempt in \$(seq 1 120); do
+            { git_1 push \$(spindle_remote git_${spindle}_1) refs/heads/*:refs/heads/* refs/tags/*:refs/tags/* && break; } || sleep 1
+        done &&
         git_1 push \$(spindle_remote git_${spindle}_1) refs/heads/*:refs/heads/* refs/tags/*:refs/tags/* )
     "
 done
@@ -39,6 +42,9 @@ for spindle in hub lab bb; do
         git_${spindle}_2 repos | grep whelk &&
         (cd whelk &&
         test_commit &&
+        for attempt in \$(seq 1 120); do
+            { git_2 push && break; } || sleep 1
+        done &&
         git_2 push) &&
         rm -rf whelk
     "
