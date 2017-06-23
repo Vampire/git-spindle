@@ -1,3 +1,4 @@
 #!/bin/sh
 # Simple script to fool Python's webbrowser module so we can test browse
 echo $@
+sleep 10

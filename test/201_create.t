@@ -4,13 +4,13 @@ test_description="Create new repos"
 
 . ./setup.sh
 
-test_expect_success "Clone source repos" "
-    git clone https://github.com/seveas/whelk.git &&
+test_expect_success REMOTE "Clone source repos" "
+    git clone https://$(spindle_host git_hub_)/seveas/whelk.git &&
     # Contains a tree that has a .git directory
     git -C whelk update-ref -d refs/remotes/origin/gh-pages &&
-    git clone https://github.com/seveas/hacks.git &&
-    git clone https://github.com/seveas/python-zonediff.git &&
-    git clone https://github.com/seveas/python-snmpclient
+    git clone https://$(spindle_host git_hub_)/seveas/hacks.git &&
+    git clone https://$(spindle_host git_hub_)/seveas/python-zonediff.git &&
+    git clone https://$(spindle_host git_hub_)/seveas/python-snmpclient
 "
 
 for spindle in hub lab bb; do
@@ -32,20 +32,23 @@ for spindle in hub lab bb; do
         git_${spindle}_1 create &&
         git_${spindle}_1 repos | sed -e 's/ .*//' > actual &&
         test_cmp expected actual &&
+        for attempt in \$(seq 1 120); do
+            { git_1 push $(spindle_remote git_${spindle}_1) refs/remotes/origin/*:refs/heads/* refs/tags/*:refs/tags/* && break; } || sleep 1
+        done &&
         git_1 push $(spindle_remote git_${spindle}_1) refs/remotes/origin/*:refs/heads/* refs/tags/*:refs/tags/* )
     "
-done;
+done
 
 test_expect_success hub,lab,bb "Creating a repo does not overwrite 'origin'" "
     cat >expected <<EOF &&
-bitbucket	git@bitbucket.org:XXX/whelk.git (fetch)
-bitbucket	git@bitbucket.org:XXX/whelk.git (push)
-github	git@github.com:XXX/whelk.git (fetch)
-github	git@github.com:XXX/whelk.git (push)
-gitlab	git@gitlab.com:XXX/whelk.git (fetch)
-gitlab	git@gitlab.com:XXX/whelk.git (push)
-origin	https://github.com/seveas/whelk.git (fetch)
-origin	https://github.com/seveas/whelk.git (push)
+bitbucket	git@$(spindle_host git_bb_):XXX/whelk.git (fetch)
+bitbucket	git@$(spindle_host git_bb_):XXX/whelk.git (push)
+github	git@$(spindle_host git_hub_):XXX/whelk.git (fetch)
+github	git@$(spindle_host git_hub_):XXX/whelk.git (push)
+gitlab	git@$(spindle_host git_lab_):XXX/whelk.git (fetch)
+gitlab	git@$(spindle_host git_lab_):XXX/whelk.git (push)
+origin	https://$(spindle_host git_hub_)/seveas/whelk.git (fetch)
+origin	https://$(spindle_host git_hub_)/seveas/whelk.git (push)
 EOF
     git -C whelk remote -v > actual &&
     sort
@@ -65,14 +68,14 @@ done;
 
 export DEBUG=1
 if test_have_prereq hub; then
-    test $(git_hub_1 run-shell -c 'print self.me.plan.name') != 'free' && test_set_prereq hub-nonfree
+    test $(git_hub_1 run-shell -c 'print(self.me.plan.name)') != 'free' && test_set_prereq hub-nonfree
 fi
 
 test_expect_success hub,hub-nonfree "Create private repo (hub)" "
     ( cd python-zonediff &&
     echo True > expected &&
     git_hub_1 create --private &&
-    git_hub_1 run-shell -c 'print repo.private' > actual &&
+    git_hub_1 run-shell -c 'print(repo.private)' > actual &&
     test_cmp expected actual )
 "
 
@@ -80,7 +83,7 @@ test_expect_success lab "Create private repo (lab)" "
     ( cd python-zonediff &&
     echo True > expected &&
     git_lab_1 create --private &&
-    git_lab_1 run-shell -c 'print repo.visibility_level == 0' > actual &&
+    git_lab_1 run-shell -c 'print(repo.visibility_level == 0)' > actual &&
     test_cmp expected actual )
 "
 
@@ -88,7 +91,7 @@ test_expect_success lab "Create internal repo (lab)" "
     ( cd python-snmpclient &&
     echo True > expected &&
     git_lab_1 create --internal &&
-    git_lab_1 run-shell -c 'print repo.visibility_level == 10' > actual &&
+    git_lab_1 run-shell -c 'print(repo.visibility_level == 10)' > actual &&
     test_cmp expected actual )
 "
 
@@ -96,7 +99,7 @@ test_expect_success bb "Create private repo (bb)" "
     ( cd python-zonediff &&
     echo True > expected &&
     git_bb_1 create --private &&
-    git_bb_1 run-shell -c 'print repo.is_private' > actual &&
+    git_bb_1 run-shell -c 'print(repo.is_private)' > actual &&
     test_cmp expected actual )
 "
 

@@ -9,6 +9,7 @@ import json
 import os
 import requests
 import sys
+import time
 import webbrowser
 
 
@@ -362,7 +363,7 @@ class GitLab(GitSpindle):
             repo = self.repository(opts)
         url = self.clone_url(repo, opts)
 
-        args = opts['extra-opts']
+        args = list(opts['extra-opts'])
         args.append(url)
         dir = opts['<dir>'] and opts['<dir>'][0] or repo.path
         if '--bare' in args:
@@ -395,7 +396,22 @@ class GitLab(GitSpindle):
                 err("Group %s could not be found" % opts['--group'])
             kwargs['namespace_id'] = group.id
         repo = glapi.Project(self.gl, kwargs)
-        repo.save()
+        i = 0
+        success = False
+        while not success:
+            try:
+                repo.save()
+                success = True
+            except glapi.GitlabCreateError as gce:
+                i += 1
+                time.sleep(1)
+                if (gce.response_code != 400) \
+                        or (not isinstance(gce.error_message, dict)) \
+                        or (not 'base' in gce.error_message) \
+                        or (not isinstance(gce.error_message['base'], list)) \
+                        or (not 'The project is still being deleted. Please try again later.' in gce.error_message['base']) \
+                        or (i >= 120):
+                    raise
         if 'origin' in self.remotes():
             print("Remote 'origin' already exists, adding the GitLab repository as 'gitlab'")
             self.set_origin(opts, repo=repo, remote='gitlab')
@@ -433,12 +449,39 @@ class GitLab(GitSpindle):
         if my_repo:
             err("Repository already exists")
 
-        my_fork = repo.fork()
+        i = 0
+        success = False
+        while not success:
+            try:
+                my_fork = repo.fork()
+                success = True
+            except glapi.GitlabForkError as gfe:
+                i += 1
+                time.sleep(1)
+                if (gfe.response_code != 409) \
+                        or (not isinstance(gfe.error_message, dict)) \
+                        or (not 'base' in gfe.error_message) \
+                        or (not isinstance(gfe.error_message['base'], list)) \
+                        or (not 'The project is still being deleted. Please try again later.' in gfe.error_message['base']) \
+                        or (i >= 120):
+                    raise
 
-        if do_clone:
-            self.clone(opts, repo=my_fork)
-        else:
-            self.set_origin(opts, repo=my_fork)
+        i = 0
+        success = False
+        while not success:
+            try:
+                if do_clone:
+                    self.clone(opts, repo=my_fork)
+                else:
+                    self.set_origin(opts, repo=my_fork)
+                success = True
+            except SystemExit as se:
+                # the fork might not be available instantly,
+                # so wait some time for it to appear on the server
+                i += 1
+                time.sleep(1)
+                if not se.code or i >= 120:
+                    raise
 
     @command
     def issue(self, opts):

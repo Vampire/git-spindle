@@ -24,8 +24,9 @@ for spindle in $all_spindles; do
         test -n \"\$password\" &&
         { test -z \"\$host\" || host=\"--host \$host\"; } &&
         if [ $spindle = git_hub_3 ]; then
-            echo \"\$ $spindle_root add-account $spindle_dash \$host\"
-            $spindle_root add-account $spindle_dash \$host
+            echo -n 'Two-Factor Authentication Code: '
+            read otp
+            (echo \"\$user\"; echo \"\$password\"; echo \"\$otp\" ) | $spindle_root add-account $spindle_dash \$host
         else
             (echo \"\$user\"; echo \"\$password\" ) | $spindle_root add-account $spindle_dash \$host
         fi &&
@@ -44,7 +45,7 @@ test_expect_success "Resetting non-numbered accounts" "
 
 # Make sure other tests know about the new tokens
 test_expect_success "Updating global .gitspindle" "
-    mv .gitspindle ..
+    mv .gitspindle "$SHARNESS_TEST_DIRECTORY"
 "
 
 test_done

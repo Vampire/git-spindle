@@ -4,8 +4,10 @@ test_description="Testing add_remote"
 
 . ./setup.sh
 
-test_expect_success "Clone source repository" "
+test_expect_success REMOTE "Clone source repository" "
     git_hub_1 clone whelk
+    # TODO: use the following instead after forks are found in the full network
+    #git clone https://$(spindle_host git_hub_)/seveas/whelk
 "
 
 for spindle in hub lab bb; do
