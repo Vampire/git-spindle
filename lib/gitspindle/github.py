@@ -143,7 +143,7 @@ class GitHub(GitSpindle):
                     if file.startswith(template + '.'):
                         contents = files[file]
         if contents:
-            contents = try_decode(self.gh._session.get(contents._json_data['download_url'], stream=True).content)
+            contents = self.gh._session.get(contents._json_data['download_url'], stream=True).text
         return contents
 
     # Commands
@@ -525,7 +525,7 @@ class GitHub(GitSpindle):
 
     @command
     def clone(self, opts, repo=None):
-        """[--ssh|--http|--git] [--triangular] [--parent] [git-clone-options] <repo> [<dir>]
+        """[--ssh|--http|--git] [--triangular [--upstream-branch=<branch>]] [--parent] [git-clone-options] <repo> [<dir>]
            Clone a repository by name"""
         if not repo:
             repo = self.repository(opts)
@@ -662,7 +662,7 @@ class GitHub(GitSpindle):
 
     @command
     def fork(self, opts):
-        """[--ssh|--http|--git] [--triangular] [<repo>]
+        """[--ssh|--http|--git] [--triangular [--upstream-branch=<branch>]] [<repo>]
            Fork a repo and clone it"""
         do_clone = bool(opts['<repo>'])
         repo = self.repository(opts)
@@ -1177,22 +1177,21 @@ class GitHub(GitSpindle):
             print("Pull request %d created %s" % (pull.number, pull.html_url))
             return
 
-        body = self.find_template(repo, 'PULL_REQUEST_TEMPLATE')
+        body = self.find_template(parent, 'PULL_REQUEST_TEMPLATE')
         # 1 commit: title/body from commit
-        if not body:
-            if len(commits) == 1:
-                title, body = self.gitm('log', '--pretty=%s\n%b', '%s^..%s' % (commits[0], commits[0])).stdout.split('\n', 1)
-                title = title.strip()
-                body = body.strip()
-                accept_empty_body = not bool(body)
+        if not body and len(commits) == 1:
+            title, body = self.gitm('log', '--pretty=%s\n%b', '%s^..%s' % (commits[0], commits[0])).stdout.split('\n', 1)
+            title = title.strip()
+            body = body.strip()
+            accept_empty_body = not bool(body)
 
-            # More commits: title from branchname (titlecased, s/-/ /g), body comments from shortlog
-            else:
-                title = src
-                if '/' in title:
-                    title = title[title.rfind('/') + 1:]
-                title = title.title().replace('-', ' ')
-                body = ""
+        # More commits: title from branchname (titlecased, s/-/ /g), body comments from shortlog
+        else:
+            title = src
+            if '/' in title:
+                title = title[title.rfind('/') + 1:]
+            title = title.title().replace('-', ' ')
+            body = body or ""
 
         body += """
 # Requesting a pull from %s/%s into %s/%s
@@ -1397,7 +1396,7 @@ class GitHub(GitSpindle):
 
     @command
     def set_origin(self, opts, repo=None, remote='origin'):
-        """[--ssh|--http|--git] [--triangular]
+        """[--ssh|--http|--git] [--triangular [--upstream-branch=<branch>]]
            Set the remote 'origin' to github.
            If this is a fork, set the remote 'upstream' to the parent"""
         if not repo:
@@ -1438,7 +1437,7 @@ class GitHub(GitSpindle):
         if remote != 'origin':
             return
 
-        self.set_tracking_branches(remote, upstream="upstream", triangular=opts['--triangular'])
+        self.set_tracking_branches(remote, upstream="upstream", triangular=opts['--triangular'], upstream_branch=opts['--upstream-branch'])
 
     @command
     def status(self, opts):
